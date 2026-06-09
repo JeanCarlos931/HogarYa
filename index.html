@@ -1195,29 +1195,37 @@
   .empty-state p { font-size: 13.5px; color: var(--text-soft); margin-bottom: 16px; }
 
   /* ---------- COMPARISON / WISHLIST ---------- */
-  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
   .compare-counter {
     position: relative;
-    width: 38px; height: 38px;
-    border-radius: var(--radius);
-    background: var(--green-soft);
-    color: var(--green);
-    display: flex; align-items: center; justify-content: center;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: var(--radius-pill);
+    background: var(--green);
+    color: #fff;
+    display: flex; align-items: center; gap: 7px;
     transition: var(--transition);
+    box-shadow: 0 2px 8px rgba(31, 111, 84, 0.25);
+    font-size: 14px;
+    font-weight: 600;
   }
-  .compare-counter:hover { background: var(--green); color: #fff; }
+  .compare-counter::after {
+    content: 'Comparar';
+  }
+  .compare-counter:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(31, 111, 84, 0.32); }
   .compare-count {
-    position: absolute;
-    top: -6px; right: -6px;
     background: var(--warm);
     color: #fff;
-    font-size: 10.5px;
+    font-size: 12px;
     font-weight: 700;
-    min-width: 18px; height: 18px;
+    min-width: 22px; height: 22px;
     border-radius: var(--radius-pill);
     display: flex; align-items: center; justify-content: center;
-    padding: 0 4px;
-    border: 2px solid var(--bg-card);
+    padding: 0 5px;
+  }
+  @media (max-width: 767px) {
+    .compare-counter { padding: 0 12px; }
+    .compare-counter::after { content: ''; }
   }
   .compare-btn {
     position: absolute;
@@ -1509,7 +1517,7 @@
       <div class="topbar-right">
         <!-- Comparison counter (HU-58) -->
         <button class="compare-counter" id="compare-counter" onclick="navigate('compare')" aria-label="Ver comparación" style="display: none;">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v18M3 9h6M21 9h-6M15 3v18M3 15h6M15 15h6"/></svg>
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M6.5 9h0M17.5 9h0"/></svg>
           <span class="compare-count" id="compare-count">0</span>
         </button>
         <button class="topbar-user" id="user-trigger" onclick="toggleUserMenu(event)">
@@ -2162,7 +2170,7 @@ const CATEGORIES = [
   { id: 'otros', name: 'Otros', icon: 'dots' }
 ];
 
-const LOCATIONS = ['San José', 'Escazú', 'Curridabat', 'San Pedro', 'Tibás', 'Heredia', 'Cartago', 'Alajuela'];
+const LOCATIONS = ['San José', 'Escazú', 'Curridabat', 'San Pedro', 'Tibás', 'Desamparados', 'Heredia', 'Cartago', 'Alajuela'];
 
 const PROVIDERS = [
   {
@@ -2365,6 +2373,21 @@ const PROVIDERS = [
     comments: [
       { author: 'Natalia G.', rating: 5, text: 'Me armó toda la oficina en 4 horas. Rápido y prolijo.' }
     ]
+  },
+  {
+    id: 14, name: 'Omar Steven Chacón', initials: 'OC', color: '#4A5C6E',
+    category: 'otros', categoryName: 'Otros · Instalación', location: 'Desamparados', distanceKm: 6.7,
+    rating: 5.0, reviews: 69,
+    description: 'Servicio de instalación discreto. Cobro en efectivo.',
+    services: [
+      { name: 'Instalación de televisión', price: 10000, unit: 'servicio' },
+      { name: 'Instalación de televisión con charla', price: 15000, unit: 'servicio' },
+      { name: 'Instalación de televisión y otras cosas', price: 20000, unit: 'servicio' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    comments: [
+      { author: 'Jess Icabalceta', rating: 5, text: 'Duró mucho. Excelente servicio.' }
+    ]
   }
 ];
 
@@ -2433,6 +2456,7 @@ function showAppShell() {
   document.getElementById('auth-wrap').style.display = 'none';
   document.getElementById('app-shell').classList.add('show');
   document.getElementById('user-initials').textContent = state.user ? getInitials(state.user.name) : '--';
+  ensureSeedData();
   updateAgendaBadge();
   updateCompareCounter();
   navigate('search');
@@ -3099,11 +3123,13 @@ function backToResults() {
 
 // ==================== AGENDA (HU-44) ====================
 
+const ACTIVE_STATUSES = ['EN_REVISION', 'CONFIRMADO', 'EN_CAMINO', 'EN_SITIO', 'INICIADO', 'FINALIZACION'];
+
 function renderAgenda() {
   const list = document.getElementById('agenda-list');
   const empty = document.getElementById('agenda-empty');
-  // Show only active bookings (not rejected, not completado)
-  const active = state.bookings.filter(b => b.status !== 'RECHAZADO').reverse();
+  // Show only active bookings (agendados / en ejecución)
+  const active = state.bookings.filter(b => ACTIVE_STATUSES.includes(b.status)).reverse();
   if (active.length === 0) {
     list.style.display = 'none';
     empty.style.display = 'block';
@@ -3122,7 +3148,7 @@ function renderAgenda() {
           </div>
         </div>
         <span class="status-badge st-${b.status.toLowerCase().replace('_', '')}">
-          ${b.status !== 'COMPLETADO' ? '<span class="dot"></span>' : ''}${labelForStatus(b.status)}
+          <span class="dot"></span>${labelForStatus(b.status)}
         </span>
       </div>
       <div class="booking-when">
@@ -3148,7 +3174,7 @@ function labelForStatus(s) {
 }
 
 function updateAgendaBadge() {
-  const active = state.bookings.filter(b => b.status !== 'RECHAZADO' && b.status !== 'COMPLETADO');
+  const active = state.bookings.filter(b => ACTIVE_STATUSES.includes(b.status));
   const count = active.length;
   ['agenda-badge-top', 'agenda-badge-bot'].forEach(id => {
     const el = document.getElementById(id);
@@ -3670,6 +3696,93 @@ function renderHistorial() {
       </button>
     `;
   }).join('');
+}
+
+// ==================== SEED DEMO DATA (historial previo + agenda activa) ====================
+
+function ensureSeedData() {
+  if (state.bookings && state.bookings.length > 0) return; // already has data
+
+  const now = new Date();
+  function dateFromNow(days, hour, min) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + days);
+    d.setHours(hour || 10, min || 0, 0, 0);
+    return d;
+  }
+  function history(statuses, baseDate, startHour) {
+    return statuses.map((s, i) => {
+      const d = new Date(baseDate);
+      d.setHours((startHour || 8) + i, 0, 0, 0);
+      return { status: s, at: d.toISOString() };
+    });
+  }
+
+  const dCompleted1 = dateFromNow(-12, 9, 0);
+  const dCompleted2 = dateFromNow(-5, 13, 0);
+  const dDispute = dateFromNow(-8, 11, 0);
+  const dUpcoming = dateFromNow(2, 10, 0);
+  const dToday = dateFromNow(0, 15, 0);
+
+  state.bookings = [
+    // --- HISTORIAL: completado con buena calificación ---
+    {
+      id: 'seed-1', providerId: 6, providerName: 'Daniel Vargas', providerInitials: 'DV', providerColor: '#4F7888',
+      providerPhone: '+506 8745-2231',
+      serviceName: 'Revisión eléctrica', servicePrice: 20000, serviceUnit: 'visita',
+      date: dCompleted1.toISOString(), time: '09:00',
+      description: 'Revisión general del sistema eléctrico por unos cortocircuitos en la cocina.',
+      status: 'COMPLETADO', rating: 5, comment: 'Excelente trabajo, muy profesional y explicó todo con detalle.',
+      statusHistory: history(['EN_REVISION','CONFIRMADO','EN_CAMINO','EN_SITIO','INICIADO','FINALIZACION','COMPLETADO'], dCompleted1, 8),
+      createdAt: dateFromNow(-13, 10).toISOString()
+    },
+    // --- HISTORIAL: completado con calificación media ---
+    {
+      id: 'seed-2', providerId: 2, providerName: 'Ana Rodríguez', providerInitials: 'AR', providerColor: '#B07A3A',
+      providerPhone: '+506 8812-9043',
+      serviceName: 'Limpieza general', servicePrice: 18000, serviceUnit: 'visita',
+      date: dCompleted2.toISOString(), time: '13:00',
+      description: 'Limpieza general del apartamento, dos habitaciones y un baño.',
+      status: 'COMPLETADO', rating: 4, comment: 'Buen trabajo, quedó todo limpio. Llegó unos minutos tarde.',
+      statusHistory: history(['EN_REVISION','CONFIRMADO','EN_CAMINO','EN_SITIO','INICIADO','FINALIZACION','COMPLETADO'], dCompleted2, 12),
+      createdAt: dateFromNow(-6, 11).toISOString()
+    },
+    // --- HISTORIAL: con disputa abierta ---
+    {
+      id: 'seed-3', providerId: 7, providerName: 'Roberto Salas', providerInitials: 'RS', providerColor: '#7A6F4A',
+      providerPhone: '+506 8390-5512',
+      serviceName: 'Reparación de muebles', servicePrice: 15000, serviceUnit: 'servicio',
+      date: dDispute.toISOString(), time: '11:00',
+      description: 'Reparación de una mesa de comedor con una pata floja y una silla rota.',
+      status: 'EN_DISPUTA',
+      incidencia: { motivo: 'La pata de la mesa quedó floja de nuevo a los dos días. La silla no fue reparada.', evidencia: ['foto_mesa.jpg', 'foto_silla.jpg'], estado: 'ABIERTA', at: dateFromNow(-7, 16).toISOString() },
+      statusHistory: history(['EN_REVISION','CONFIRMADO','EN_CAMINO','EN_SITIO','INICIADO','FINALIZACION','EN_DISPUTA'], dDispute, 10),
+      createdAt: dateFromNow(-9, 9).toISOString()
+    },
+    // --- AGENDA: servicio confirmado próximo ---
+    {
+      id: 'seed-4', providerId: 1, providerName: 'Carlos Méndez', providerInitials: 'CM', providerColor: '#5E8470',
+      providerPhone: '+506 8521-7788',
+      serviceName: 'Chapeo de zacate', servicePrice: 15000, serviceUnit: 'visita',
+      date: dUpcoming.toISOString(), time: '10:00',
+      description: 'Chapeo del jardín delantero y trasero antes de una reunión familiar el fin de semana.',
+      status: 'CONFIRMADO',
+      statusHistory: history(['EN_REVISION','CONFIRMADO'], dateFromNow(-1, 14), 14),
+      createdAt: dateFromNow(-1, 14).toISOString()
+    },
+    // --- AGENDA: servicio en ejecución (en camino) hoy ---
+    {
+      id: 'seed-5', providerId: 4, providerName: 'Luis Gómez', providerInitials: 'LG', providerColor: '#8B5E5E',
+      providerPhone: '+506 8190-3367',
+      serviceName: 'Reparación de fuga', servicePrice: 14000, serviceUnit: 'servicio',
+      date: dToday.toISOString(), time: '15:00',
+      description: 'Fuga debajo del lavamanos del baño principal. Urge porque está goteando.',
+      status: 'EN_CAMINO',
+      statusHistory: history(['EN_REVISION','CONFIRMADO','EN_CAMINO'], dToday, 13),
+      createdAt: dateFromNow(0, 13).toISOString()
+    }
+  ];
+  saveBookings();
 }
 
 // ==================== INIT ====================
