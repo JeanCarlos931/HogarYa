@@ -1,0 +1,3697 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HogarYa — Prototipo Cliente</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1F6F54;
+    --green-dark: #155440;
+    --green-darker: #0E3B2D;
+    --green-light: #E8F3EE;
+    --green-soft: #F4F9F6;
+    --bg: #FAF8F4;
+    --bg-card: #FFFFFF;
+    --bg-elev: #FFFFFF;
+    --text: #1A1F1C;
+    --text-soft: #5B6562;
+    --text-mute: #95A09C;
+    --border: #E4E7E5;
+    --border-strong: #C7CDC9;
+    --warm: #C8A062;
+    --warm-soft: #F5EFE2;
+    --danger: #B84444;
+    --danger-soft: #F8E8E8;
+    --star: #E9A92D;
+    --radius: 10px;
+    --radius-lg: 14px;
+    --radius-pill: 999px;
+    --shadow-soft: 0 1px 2px rgba(20, 35, 28, 0.04), 0 2px 8px rgba(20, 35, 28, 0.04);
+    --shadow-elev: 0 4px 16px rgba(20, 35, 28, 0.08);
+    --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    font-family: 'Manrope', -apple-system, sans-serif;
+    font-size: 15px;
+    color: var(--text);
+    background: var(--bg);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+  input, textarea, select { font-family: inherit; font-size: inherit; }
+  a { color: inherit; text-decoration: none; }
+
+  /* ---------- TYPOGRAPHY ---------- */
+  .display, .brand-mark {
+    font-family: 'Fraunces', Georgia, serif;
+    font-optical-sizing: auto;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  .display-xl { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 36px; line-height: 1.1; letter-spacing: -0.02em; }
+  .display-lg { font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 28px; line-height: 1.15; letter-spacing: -0.015em; }
+  .h1 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .h2 { font-size: 17px; font-weight: 600; }
+  .h3 { font-size: 14px; font-weight: 600; }
+  .small { font-size: 13px; color: var(--text-soft); }
+  .tiny { font-size: 12px; color: var(--text-mute); }
+  .label-up { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-mute); }
+
+  /* ---------- BUTTONS ---------- */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 12px 20px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 600;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+  .btn-primary { background: var(--green); color: #fff; }
+  .btn-primary:hover { background: var(--green-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(31, 111, 84, 0.25); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { background: var(--border-strong); color: var(--text-mute); cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-outline { background: transparent; color: var(--green); border: 1px solid var(--border-strong); }
+  .btn-outline:hover { border-color: var(--green); background: var(--green-soft); }
+
+  .btn-ghost { background: transparent; color: var(--text-soft); padding: 8px 12px; }
+  .btn-ghost:hover { background: var(--green-soft); color: var(--green); }
+
+  .btn-full { width: 100%; }
+
+  .btn-icon { padding: 8px; border-radius: var(--radius); color: var(--text-soft); }
+  .btn-icon:hover { background: var(--green-soft); color: var(--green); }
+
+  /* ---------- FORM ELEMENTS ---------- */
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 13px; font-weight: 500; color: var(--text-soft); margin-bottom: 6px; }
+  .field input, .field textarea, .field select {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    transition: var(--transition);
+    font-size: 14px;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(31, 111, 84, 0.12);
+  }
+  .field .hint { font-size: 12px; color: var(--text-mute); margin-top: 4px; }
+  .field .err-text { font-size: 12px; color: var(--danger); margin-top: 4px; display: none; }
+  .field.error input, .field.error textarea { border-color: var(--danger); }
+  .field.error .err-text { display: block; }
+
+  /* ---------- LAYOUT ---------- */
+  #app { min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* ============ AUTH CONTAINER ============ */
+  .auth-wrap {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    background:
+      radial-gradient(circle at top right, rgba(200, 160, 98, 0.06), transparent 50%),
+      radial-gradient(circle at bottom left, rgba(31, 111, 84, 0.06), transparent 50%),
+      var(--bg);
+  }
+  .auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: 32px 28px;
+    box-shadow: var(--shadow-elev);
+    border: 1px solid var(--border);
+  }
+  .auth-brand {
+    text-align: center;
+    margin-bottom: 24px;
+  }
+  .auth-brand .mark {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 32px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--green);
+  }
+  .auth-brand .mark span { color: var(--warm); font-style: italic; }
+  .auth-brand .tag {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin-top: 4px;
+  }
+  .auth-tabs {
+    display: flex;
+    background: var(--green-soft);
+    border-radius: var(--radius);
+    padding: 4px;
+    margin-bottom: 24px;
+  }
+  .auth-tab {
+    flex: 1; padding: 9px; border-radius: 7px;
+    font-size: 13px; font-weight: 600; color: var(--text-soft);
+    transition: var(--transition);
+  }
+  .auth-tab.active { background: var(--bg-card); color: var(--green); box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .auth-foot { text-align: center; margin-top: 18px; font-size: 13px; color: var(--text-soft); }
+  .auth-foot a { color: var(--green); font-weight: 500; }
+  .auth-foot a:hover { text-decoration: underline; }
+  .auth-demo {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: var(--warm-soft);
+    border-radius: var(--radius);
+    font-size: 12px;
+    color: #6E5A2E;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .auth-demo strong { font-weight: 600; }
+
+  /* ============ APP SHELL ============ */
+  #app-shell { display: none; flex-direction: column; min-height: 100vh; }
+  #app-shell.show { display: flex; }
+
+  /* Top bar (always present on mobile too as a thin brand) */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 18px;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 30;
+  }
+  .topbar .brand {
+    font-family: 'Fraunces', Georgia, serif;
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--green);
+    letter-spacing: -0.015em;
+  }
+  .topbar .brand span { color: var(--warm); font-style: italic; }
+  .topbar-nav { display: none; gap: 4px; }
+  .topbar-nav .nav-item {
+    padding: 8px 16px; border-radius: var(--radius);
+    font-size: 14px; font-weight: 500; color: var(--text-soft);
+    display: flex; align-items: center; gap: 6px;
+    transition: var(--transition);
+  }
+  .topbar-nav .nav-item:hover { background: var(--green-soft); color: var(--green); }
+  .topbar-nav .nav-item.active { color: var(--green); background: var(--green-soft); }
+  .topbar-user {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--green); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .topbar-user:hover { background: var(--green-dark); }
+
+  /* Mobile bottom nav */
+  .botnav {
+    position: sticky; bottom: 0;
+    background: var(--bg-card);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 30;
+    padding: 6px 4px 8px;
+  }
+  .botnav .nav-item {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 2px;
+    padding: 6px 4px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: var(--text-mute);
+    transition: var(--transition);
+    border-radius: var(--radius);
+    position: relative;
+  }
+  .botnav .nav-item.active { color: var(--green); }
+  .botnav .nav-item svg { width: 22px; height: 22px; }
+
+  /* Main content area */
+  .main {
+    flex: 1;
+    padding: 20px 18px 24px;
+    max-width: 100%;
+  }
+  .screen { display: none; animation: fade-in 240ms ease-out; }
+  .screen.active { display: block; }
+  @keyframes fade-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* ---------- SCREEN: SEARCH ---------- */
+  .hero {
+    margin: 8px 0 24px;
+  }
+  .hero h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    margin-bottom: 6px;
+  }
+  .hero h1 em { font-style: italic; color: var(--green); }
+  .hero p { font-size: 14px; color: var(--text-soft); }
+
+  .search-box {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 6px 6px 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+    margin-bottom: 24px;
+  }
+  .search-box:focus-within {
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(31, 111, 84, 0.10);
+  }
+  .search-box input {
+    flex: 1; border: none; outline: none;
+    padding: 12px 0; font-size: 15px;
+    background: transparent; color: var(--text);
+  }
+  .search-box input::placeholder { color: var(--text-mute); }
+  .search-box .search-btn {
+    background: var(--green); color: #fff;
+    padding: 10px 18px; border-radius: var(--radius);
+    font-weight: 600; font-size: 14px;
+    transition: var(--transition);
+  }
+  .search-box .search-btn:hover { background: var(--green-dark); }
+  .search-box .icon { color: var(--text-mute); }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .category-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+  }
+  .category-card:hover {
+    border-color: var(--green);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-soft);
+  }
+  .category-card .cat-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    background: var(--green-soft); color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 6px;
+  }
+  .category-card .cat-name { font-size: 14px; font-weight: 600; color: var(--text); }
+  .category-card .cat-count { font-size: 11px; color: var(--text-mute); }
+
+  /* ---------- SCREEN: RESULTS ---------- */
+  .results-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .results-count { font-size: 13px; color: var(--text-soft); }
+  .results-count strong { color: var(--text); font-weight: 600; }
+
+  .filters-bar {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 18px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    margin-left: -18px; margin-right: -18px;
+    padding-left: 18px; padding-right: 18px;
+    scrollbar-width: none;
+  }
+  .filters-bar::-webkit-scrollbar { display: none; }
+  .filter-pill {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .filter-pill:hover { border-color: var(--green); color: var(--green); }
+  .filter-pill.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .filter-pill.has-icon { padding-left: 10px; }
+
+  .filter-sidebar { display: none; }
+
+  .results-list {
+    display: grid; grid-template-columns: 1fr; gap: 12px;
+  }
+
+  .provider-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    display: flex;
+    gap: 14px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: left;
+  }
+  .provider-card:hover {
+    border-color: var(--green);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+  }
+  .avatar {
+    flex-shrink: 0;
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600;
+    color: #fff;
+    font-size: 16px;
+    letter-spacing: 0.02em;
+  }
+  .provider-info { flex: 1; min-width: 0; }
+  .provider-name {
+    font-size: 15px; font-weight: 600;
+    margin-bottom: 2px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .provider-meta {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12.5px; color: var(--text-soft);
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .provider-meta .rating { display: inline-flex; align-items: center; gap: 3px; color: var(--star); font-weight: 600; }
+  .provider-meta .rating .star { width: 13px; height: 13px; }
+  .provider-meta .dot { color: var(--text-mute); }
+  .provider-cat {
+    display: inline-block;
+    font-size: 11px; font-weight: 500;
+    color: var(--green);
+    background: var(--green-soft);
+    padding: 3px 8px;
+    border-radius: var(--radius-pill);
+    margin-bottom: 6px;
+  }
+  .provider-price {
+    font-size: 13px;
+    color: var(--text);
+    font-weight: 500;
+  }
+  .provider-price .from { color: var(--text-mute); font-weight: 400; font-size: 12px; }
+  .provider-price .price-amount {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 16px;
+    letter-spacing: -0.01em;
+  }
+  .distance-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    color: var(--green);
+    background: var(--green-soft);
+    padding: 3px 8px 3px 6px;
+    border-radius: var(--radius-pill);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+  .distance-badge svg { flex-shrink: 0; }
+  .tu-ubi {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--warm);
+    letter-spacing: 0.04em;
+    margin-left: 2px;
+  }
+  .filter-pill.active .tu-ubi { color: #FAEEDA; }
+  .tu-ubi-side {
+    font-size: 9.5px;
+    font-weight: 700;
+    color: var(--warm);
+    letter-spacing: 0.04em;
+  }
+  .filter-opt.is-yours { font-weight: 600; }
+
+  .no-results {
+    background: var(--bg-card);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .no-results .icon { color: var(--text-mute); margin-bottom: 12px; }
+  .no-results h3 { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 500; margin-bottom: 6px; }
+  .no-results p { font-size: 13.5px; color: var(--text-soft); margin-bottom: 16px; }
+
+  /* ---------- SCREEN: PROVIDER PROFILE ---------- */
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 500;
+    color: var(--text-soft);
+    margin-bottom: 16px;
+    padding: 6px 10px 6px 4px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .back-link:hover { color: var(--green); background: var(--green-soft); }
+
+  .provider-header {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .provider-header .top {
+    display: flex; gap: 16px; align-items: flex-start;
+    margin-bottom: 16px;
+  }
+  .provider-header .avatar { width: 64px; height: 64px; font-size: 19px; }
+  .provider-header h1 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500; font-size: 24px;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    margin-bottom: 4px;
+  }
+  .provider-header .desc {
+    font-size: 14px; color: var(--text-soft); line-height: 1.5;
+    margin-top: 14px;
+  }
+  .stat-row {
+    display: flex; gap: 14px; align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-top: 14px;
+  }
+  .stat {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    text-align: center;
+  }
+  .stat .num {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500; font-size: 20px;
+    letter-spacing: -0.01em;
+  }
+  .stat .lbl { font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+  .stat-divider { width: 1px; align-self: stretch; background: var(--border); }
+
+  .section-title {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 20px;
+    letter-spacing: -0.01em;
+    margin: 24px 0 12px;
+  }
+
+  .service-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    text-align: left;
+  }
+  .service-item:hover { border-color: var(--green); }
+  .service-item.selected {
+    border-color: var(--green);
+    background: var(--green-soft);
+    box-shadow: 0 0 0 2px rgba(31, 111, 84, 0.15);
+  }
+  .service-item .svc-name { font-size: 14px; font-weight: 500; }
+  .service-item .svc-unit { font-size: 12px; color: var(--text-mute); margin-top: 2px; }
+  .service-item .svc-price {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--green);
+    letter-spacing: -0.01em;
+    flex-shrink: 0;
+  }
+
+  .avail-row {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    margin-bottom: 8px;
+  }
+  .avail-day {
+    padding: 6px 11px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-soft);
+  }
+  .avail-day.has { background: var(--green-soft); color: var(--green); border-color: rgba(31, 111, 84, 0.2); }
+
+  .review {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 8px;
+  }
+  .review-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .review-author { font-size: 13px; font-weight: 600; }
+  .review-stars { display: inline-flex; gap: 1px; color: var(--star); }
+  .review-stars svg { width: 12px; height: 12px; }
+  .review-text { font-size: 13.5px; color: var(--text-soft); line-height: 1.5; }
+
+  .sticky-action {
+    position: sticky;
+    bottom: 70px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 12px;
+    margin-top: 20px;
+    box-shadow: var(--shadow-elev);
+    display: flex; align-items: center; gap: 12px;
+    z-index: 10;
+  }
+  .sticky-action .total-info { flex: 1; min-width: 0; }
+  .sticky-action .total-label { font-size: 11px; color: var(--text-mute); text-transform: uppercase; letter-spacing: 0.06em; }
+  .sticky-action .total-price {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .sticky-action .total-price.placeholder { color: var(--text-mute); font-size: 14px; }
+  .sticky-action button { flex-shrink: 0; }
+
+  /* ---------- SCREEN: SERVICE DETAILS ---------- */
+  .summary-card {
+    background: var(--green-soft);
+    border: 1px solid rgba(31, 111, 84, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .summary-card .avatar { width: 44px; height: 44px; font-size: 14px; }
+  .summary-card .sc-info { flex: 1; min-width: 0; }
+  .summary-card .sc-name { font-size: 14px; font-weight: 600; }
+  .summary-card .sc-service { font-size: 12.5px; color: var(--text-soft); margin-top: 2px; }
+  .summary-card .sc-change {
+    font-size: 12px; font-weight: 600;
+    color: var(--green);
+    padding: 6px 10px; border-radius: var(--radius);
+    background: var(--bg-card);
+    border: 1px solid rgba(31, 111, 84, 0.15);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .summary-card .sc-change:hover { background: var(--green); color: #fff; }
+
+  textarea.details-text {
+    width: 100%; min-height: 140px; resize: vertical;
+    padding: 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    transition: var(--transition);
+    font-family: inherit;
+  }
+  textarea.details-text:focus {
+    outline: none;
+    border-color: var(--green);
+    box-shadow: 0 0 0 3px rgba(31, 111, 84, 0.10);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(120%);
+    background: var(--text);
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: var(--radius);
+    font-size: 14px; font-weight: 500;
+    z-index: 100;
+    box-shadow: var(--shadow-elev);
+    transition: transform 280ms cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.success { background: var(--green-darker); }
+
+  /* ---------- USER MENU ---------- */
+  .user-menu {
+    position: absolute;
+    top: 58px; right: 18px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-elev);
+    padding: 6px;
+    min-width: 200px;
+    z-index: 50;
+    display: none;
+  }
+  .user-menu.show { display: block; }
+  .user-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 9px 12px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    color: var(--text);
+    cursor: pointer;
+    transition: var(--transition);
+    width: 100%;
+    text-align: left;
+  }
+  .user-menu-item:hover { background: var(--green-soft); color: var(--green); }
+  .user-menu .divider { height: 1px; background: var(--border); margin: 4px 6px; }
+  .user-menu-item.danger { color: var(--danger); }
+  .user-menu-item.danger:hover { background: var(--danger-soft); color: var(--danger); }
+
+  /* ---------- DESKTOP (≥ 768px) ---------- */
+  @media (min-width: 768px) {
+    .topbar { padding: 14px 32px; }
+    .topbar-nav { display: flex; }
+    .botnav { display: none; }
+    .main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 32px 32px 48px;
+      width: 100%;
+    }
+    .hero { margin: 20px 0 32px; }
+    .hero h1 { font-size: 38px; }
+    .hero p { font-size: 15px; }
+
+    /* Two-column results layout */
+    .results-shell {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 32px;
+      align-items: start;
+    }
+    .filter-sidebar {
+      display: block;
+      position: sticky;
+      top: 84px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+    }
+    .filter-sidebar h3 {
+      font-size: 15px; font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .filter-sidebar .filter-group { margin-bottom: 20px; }
+    .filter-sidebar .filter-group:last-child { margin-bottom: 0; }
+    .filter-sidebar .filter-label {
+      font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-mute);
+      margin-bottom: 8px;
+    }
+    .filter-sidebar .filter-opt {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 0;
+      font-size: 13.5px;
+      color: var(--text-soft);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .filter-sidebar .filter-opt:hover { color: var(--green); }
+    .filter-sidebar .filter-opt input[type="checkbox"] {
+      width: 16px; height: 16px;
+      accent-color: var(--green);
+      cursor: pointer;
+    }
+    .filter-sidebar .filter-opt.active { color: var(--green); font-weight: 600; }
+
+    .filters-bar { display: none; }
+
+    .results-main { min-width: 0; }
+    .results-list { grid-template-columns: 1fr 1fr; gap: 14px; }
+
+    /* Two-column profile layout */
+    .provider-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 32px;
+      align-items: start;
+    }
+    .provider-side { position: sticky; top: 84px; }
+    .sticky-action {
+      position: static;
+      box-shadow: var(--shadow-soft);
+      padding: 16px;
+      flex-direction: column;
+      gap: 14px;
+      align-items: stretch;
+    }
+    .sticky-action .total-info { display: flex; flex-direction: column; }
+
+    .category-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .auth-card { padding: 40px 36px; max-width: 460px; }
+
+    /* Details screen as centered narrow column */
+    .details-shell { max-width: 640px; margin: 0 auto; }
+  }
+
+  @media (min-width: 1024px) {
+    .category-grid { grid-template-columns: repeat(3, 1fr); }
+    .results-list { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* ---------- HELPERS ---------- */
+  .row-between { display: flex; justify-content: space-between; align-items: center; }
+  .row-center { display: flex; align-items: center; gap: 8px; }
+  .mt-1 { margin-top: 8px; }
+  .mt-2 { margin-top: 16px; }
+  .mb-2 { margin-bottom: 16px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+  /* ---------- DATETIME SCREEN ---------- */
+  .calendar {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .cal-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 14px;
+  }
+  .cal-month {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 18px;
+    letter-spacing: -0.01em;
+    text-transform: capitalize;
+  }
+  .cal-nav { display: flex; gap: 4px; }
+  .cal-nav button {
+    width: 32px; height: 32px;
+    border-radius: var(--radius);
+    color: var(--text-soft);
+    transition: var(--transition);
+  }
+  .cal-nav button:hover:not(:disabled) { background: var(--green-soft); color: var(--green); }
+  .cal-nav button:disabled { opacity: 0.3; cursor: not-allowed; }
+  .cal-weekdays {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    margin-bottom: 8px;
+  }
+  .cal-weekday {
+    text-align: center;
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--text-mute);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 4px 0;
+  }
+  .cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--text);
+    background: transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+  }
+  .cal-day:hover:not(:disabled):not(.empty) { background: var(--green-soft); color: var(--green); }
+  .cal-day.empty { cursor: default; }
+  .cal-day:disabled { color: var(--border-strong); cursor: not-allowed; }
+  .cal-day.has-avail { color: var(--text); }
+  .cal-day.has-avail::after {
+    content: '';
+    position: absolute; bottom: 4px; left: 50%;
+    transform: translateX(-50%);
+    width: 4px; height: 4px;
+    border-radius: 50%;
+    background: var(--green);
+  }
+  .cal-day.no-avail { color: var(--text-mute); cursor: not-allowed; }
+  .cal-day.no-avail::after { background: var(--border-strong); }
+  .cal-day.selected {
+    background: var(--green) !important;
+    color: #fff !important;
+  }
+  .cal-day.selected::after { background: #fff; }
+  .cal-day.today {
+    border: 1.5px solid var(--green);
+  }
+  .cal-legend {
+    display: flex; gap: 12px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-soft);
+  }
+  .cal-legend .dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  .time-slots {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .time-slot {
+    padding: 10px 6px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .time-slot:hover { border-color: var(--green); color: var(--green); }
+  .time-slot.selected {
+    background: var(--green); color: #fff; border-color: var(--green);
+  }
+
+  /* ---------- STATUS / TIMELINE ---------- */
+  .status-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px;
+    border-radius: var(--radius-pill);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .status-badge .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+  .st-revision { background: var(--warm-soft); color: #6E5A2E; }
+  .st-aceptada, .st-confirmado { background: var(--green-soft); color: var(--green-darker); }
+  .st-rechazada { background: var(--danger-soft); color: var(--danger); }
+  .st-encamino, .st-ensitio, .st-iniciado { background: #E6F1FB; color: #0C447C; }
+  .st-finalizacion { background: var(--warm-soft); color: #6E5A2E; }
+  .st-completado { background: #EAF3DE; color: #173404; }
+
+  .request-loading {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 32px 24px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .spinner {
+    width: 48px; height: 48px;
+    border: 3px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    margin: 0 auto 16px;
+    animation: spin 800ms linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .checkmark-circle {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 16px;
+    animation: pop 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
+  /* ---------- AGENDA ---------- */
+  .booking-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    text-align: left;
+    width: 100%;
+    display: block;
+  }
+  .booking-card:hover {
+    border-color: var(--green);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-soft);
+  }
+  .booking-head {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    gap: 12px; margin-bottom: 10px;
+  }
+  .booking-info { flex: 1; min-width: 0; display: flex; gap: 12px; align-items: center; }
+  .booking-info .avatar { width: 42px; height: 42px; font-size: 14px; flex-shrink: 0; }
+  .booking-info-text { min-width: 0; }
+  .booking-prov-name { font-size: 14px; font-weight: 600; }
+  .booking-service { font-size: 12.5px; color: var(--text-soft); margin-top: 1px; }
+  .booking-when {
+    display: flex; align-items: center; gap: 8px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+    font-size: 13px; color: var(--text-soft);
+  }
+  .booking-when .ico { color: var(--text-mute); }
+
+  /* ---------- AGENDA DETAIL ---------- */
+  .detail-block {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    margin-bottom: 14px;
+  }
+  .detail-block h3 {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: var(--text-mute);
+    margin-bottom: 8px;
+  }
+  .detail-row {
+    display: flex; justify-content: space-between; align-items: center;
+    gap: 10px; padding: 7px 0;
+    font-size: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .label { color: var(--text-soft); font-size: 13px; }
+  .detail-row .value { font-weight: 500; text-align: right; }
+
+  .contact-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0;
+  }
+  .contact-row .avatar { width: 44px; height: 44px; font-size: 14px; flex-shrink: 0; }
+  .contact-info { flex: 1; }
+  .contact-name { font-size: 14px; font-weight: 600; }
+  .contact-phone { font-size: 13px; color: var(--green); font-weight: 500; }
+  .contact-actions { display: flex; gap: 6px; }
+  .contact-btn {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--green-soft);
+    color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .contact-btn:hover { background: var(--green); color: #fff; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 24px; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 7px; top: 4px; bottom: 4px;
+    width: 2px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    padding-bottom: 14px;
+  }
+  .tl-item:last-child { padding-bottom: 0; }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -22px; top: 4px;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 2px solid var(--border);
+  }
+  .tl-item.done::before {
+    background: var(--green);
+    border-color: var(--green);
+  }
+  .tl-item.active::before {
+    background: var(--green);
+    border-color: var(--green);
+    box-shadow: 0 0 0 4px var(--green-soft);
+  }
+  .tl-item.pending { opacity: 0.5; }
+  .tl-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .tl-item.pending .tl-title { color: var(--text-mute); }
+  .tl-time {
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-top: 1px;
+  }
+
+  /* Demo controls */
+  .demo-panel {
+    background: var(--warm-soft);
+    border: 1px dashed var(--warm);
+    border-radius: var(--radius-lg);
+    padding: 14px 16px;
+    margin-top: 16px;
+  }
+  .demo-panel .demo-head {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #6E5A2E;
+    margin-bottom: 8px;
+  }
+  .demo-panel p {
+    font-size: 12.5px;
+    color: #6E5A2E;
+    margin-bottom: 10px;
+    line-height: 1.4;
+  }
+  .demo-panel .demo-btn {
+    background: #6E5A2E;
+    color: var(--warm-soft);
+    padding: 9px 14px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: var(--transition);
+  }
+  .demo-panel .demo-btn:hover { background: #4F4220; }
+  .demo-panel .demo-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Agenda counter on nav */
+  .nav-badge {
+    background: var(--warm);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: var(--radius-pill);
+    margin-left: 4px;
+    min-width: 16px;
+    display: inline-block;
+    text-align: center;
+  }
+
+  .empty-state {
+    background: var(--bg-card);
+    border: 1px dashed var(--border-strong);
+    border-radius: var(--radius-lg);
+    padding: 40px 24px;
+    text-align: center;
+  }
+  .empty-state .icon { color: var(--text-mute); margin-bottom: 12px; }
+  .empty-state h3 { font-family: 'Fraunces', Georgia, serif; font-size: 19px; font-weight: 500; margin-bottom: 6px; }
+  .empty-state p { font-size: 13.5px; color: var(--text-soft); margin-bottom: 16px; }
+
+  /* ---------- COMPARISON / WISHLIST ---------- */
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .compare-counter {
+    position: relative;
+    width: 38px; height: 38px;
+    border-radius: var(--radius);
+    background: var(--green-soft);
+    color: var(--green);
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+  }
+  .compare-counter:hover { background: var(--green); color: #fff; }
+  .compare-count {
+    position: absolute;
+    top: -6px; right: -6px;
+    background: var(--warm);
+    color: #fff;
+    font-size: 10.5px;
+    font-weight: 700;
+    min-width: 18px; height: 18px;
+    border-radius: var(--radius-pill);
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px;
+    border: 2px solid var(--bg-card);
+  }
+  .compare-btn {
+    position: absolute;
+    top: 12px; right: 12px;
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    color: var(--text-mute);
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+    z-index: 5;
+  }
+  .compare-btn:hover { border-color: var(--green); color: var(--green); }
+  .compare-btn.added {
+    background: var(--green);
+    border-color: var(--green);
+    color: #fff;
+  }
+  .provider-card { position: relative; }
+
+  .compare-scroll {
+    overflow-x: auto;
+    margin: 0 -18px;
+    padding: 0 18px 8px;
+    scrollbar-width: thin;
+  }
+  .compare-grid {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(185px, 1fr);
+    gap: 12px;
+    min-width: min-content;
+  }
+  .compare-col {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .compare-col-head {
+    padding: 16px 14px 14px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+  .compare-remove {
+    position: absolute;
+    top: 8px; right: 8px;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: var(--bg);
+    color: var(--text-mute);
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+  }
+  .compare-remove:hover { background: var(--danger-soft); color: var(--danger); }
+  .compare-col-head .avatar { width: 48px; height: 48px; font-size: 15px; margin: 0 auto 8px; }
+  .compare-col-name { font-size: 13.5px; font-weight: 600; line-height: 1.2; }
+  .compare-row {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .compare-row .rlabel {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-mute);
+    margin-bottom: 3px;
+    font-weight: 600;
+  }
+  .compare-row .rvalue { color: var(--text); font-weight: 500; }
+  .compare-row .rrating { color: var(--star); font-weight: 600; display: inline-flex; align-items: center; gap: 3px; }
+  .compare-row .rrating svg { width: 12px; height: 12px; }
+  .compare-svc-item {
+    display: flex; justify-content: space-between; gap: 6px;
+    font-size: 12px;
+    padding: 3px 0;
+  }
+  .compare-svc-item .cs-price { color: var(--green); font-weight: 600; white-space: nowrap; }
+  .compare-col-foot { padding: 12px 14px; margin-top: auto; }
+  .compare-select-btn {
+    width: 100%;
+    background: var(--green);
+    color: #fff;
+    padding: 9px;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    transition: var(--transition);
+  }
+  .compare-select-btn:hover { background: var(--green-dark); }
+  .compare-avail-mini { display: flex; flex-wrap: wrap; gap: 3px; }
+  .compare-avail-mini span {
+    font-size: 10px;
+    padding: 1px 5px;
+    background: var(--green-soft);
+    color: var(--green);
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* ---------- RATING ---------- */
+  .star-picker { display: flex; justify-content: center; gap: 8px; margin: 8px 0 12px; }
+  .star-picker button { color: var(--border-strong); transition: var(--transition); padding: 4px; }
+  .star-picker button svg { width: 38px; height: 38px; }
+  .star-picker button.lit { color: var(--star); }
+  .star-picker button:hover { transform: scale(1.12); }
+  .rating-label { text-align: center; font-size: 14px; font-weight: 600; color: var(--text); min-height: 20px; margin-bottom: 20px; }
+
+  /* ---------- INCIDENCIA ---------- */
+  .evidence-drop {
+    border: 1.5px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition);
+    color: var(--text-soft);
+    margin-bottom: 12px;
+  }
+  .evidence-drop:hover { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+  .evidence-drop svg { margin-bottom: 6px; }
+  .evidence-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+  .evidence-chip {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 10px;
+    background: var(--green-soft);
+    border-radius: var(--radius);
+    font-size: 12.5px;
+    color: var(--green-darker);
+  }
+  .evidence-chip button { color: var(--text-mute); display: flex; }
+  .evidence-chip button:hover { color: var(--danger); }
+
+  .confirm-finish {
+    background: var(--warm-soft);
+    border: 1px solid var(--warm);
+    border-radius: var(--radius-lg);
+    padding: 18px;
+    margin-bottom: 14px;
+  }
+  .confirm-finish h3 {
+    font-family: 'Fraunces', Georgia, serif;
+    font-weight: 500;
+    font-size: 17px;
+    color: #5A4A22;
+    margin-bottom: 6px;
+  }
+  .confirm-finish p { font-size: 13px; color: #6E5A2E; margin-bottom: 14px; line-height: 1.45; }
+  .confirm-finish .cf-actions { display: flex; gap: 10px; }
+
+  /* ---------- HISTORIAL ---------- */
+  .hist-filters {
+    display: flex; gap: 8px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .hist-filters::-webkit-scrollbar { display: none; }
+  .hist-filter {
+    flex-shrink: 0;
+    padding: 7px 14px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-soft);
+    cursor: pointer;
+    transition: var(--transition);
+  }
+  .hist-filter:hover { border-color: var(--green); color: var(--green); }
+  .hist-filter.active { background: var(--green); color: #fff; border-color: var(--green); }
+  .hist-rating-display { display: inline-flex; gap: 1px; color: var(--star); }
+  .hist-rating-display svg { width: 13px; height: 13px; }
+  .incidencia-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 11px; font-weight: 600;
+    color: var(--danger);
+    background: var(--danger-soft);
+    padding: 2px 8px;
+    border-radius: var(--radius-pill);
+  }
+  .st-endisputa { background: var(--danger-soft); color: var(--danger); }
+
+  @media (min-width: 768px) {
+    .compare-grid { grid-auto-columns: minmax(220px, 1fr); }
+    .compare-scroll { margin: 0; padding: 0 0 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- ================== AUTH ================== -->
+  <div id="auth-wrap" class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-brand">
+        <div class="mark">Hogar<span>Ya</span></div>
+        <div class="tag">Servicios para tu hogar, sin enredos</div>
+      </div>
+
+      <!-- Login / Register tabs -->
+      <div class="auth-tabs" id="auth-tabs">
+        <button class="auth-tab active" data-mode="login">Iniciar sesión</button>
+        <button class="auth-tab" data-mode="register">Crear cuenta</button>
+      </div>
+
+      <!-- LOGIN FORM (HU-02) -->
+      <form id="form-login" class="auth-form">
+        <div class="field">
+          <label for="login-email">Correo electrónico</label>
+          <input type="email" id="login-email" placeholder="tu@correo.com">
+        </div>
+        <div class="field">
+          <label for="login-pass">Contraseña</label>
+          <input type="password" id="login-pass" placeholder="••••••••">
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Entrar</button>
+        <div class="auth-foot">
+          <a href="#" id="link-forgot">¿Olvidaste tu contraseña?</a>
+        </div>
+      </form>
+
+      <!-- REGISTER FORM (HU-01) -->
+      <form id="form-register" class="auth-form" style="display:none">
+        <div class="field">
+          <label for="reg-name">Nombre completo</label>
+          <input type="text" id="reg-name" placeholder="Andrés Mora" required>
+          <div class="err-text">El nombre es obligatorio</div>
+        </div>
+        <div class="field">
+          <label for="reg-email">Correo electrónico</label>
+          <input type="email" id="reg-email" placeholder="tu@correo.com" required>
+          <div class="err-text">Correo no válido</div>
+        </div>
+        <div class="field">
+          <label for="reg-pass">Contraseña</label>
+          <input type="password" id="reg-pass" placeholder="Mínimo 8 caracteres" minlength="8" required>
+          <div class="err-text">Mínimo 8 caracteres</div>
+          <div class="hint">Mínimo 8 caracteres, una mayúscula y un número</div>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Crear cuenta</button>
+      </form>
+
+      <!-- FORGOT PASSWORD (HU-03) -->
+      <form id="form-forgot" class="auth-form" style="display:none">
+        <h2 class="h1" style="font-family: 'Fraunces', Georgia, serif; font-weight: 500; margin-bottom: 8px;">Recuperar contraseña</h2>
+        <p class="small" style="margin-bottom: 20px;">Te enviaremos un enlace al correo registrado.</p>
+        <div class="field">
+          <label for="forgot-email">Correo electrónico</label>
+          <input type="email" id="forgot-email" placeholder="tu@correo.com" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Enviar enlace</button>
+        <div class="auth-foot">
+          <a href="#" id="link-back-login">Volver a iniciar sesión</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================== APP SHELL ================== -->
+  <div id="app-shell">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <button class="brand" onclick="navigate('search')">Hogar<span>Ya</span></button>
+      <nav class="topbar-nav">
+        <button class="nav-item" data-nav="search" onclick="navigate('search')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          Buscar
+        </button>
+        <button class="nav-item" data-nav="agenda" onclick="navigate('agenda')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          Agenda
+          <span class="nav-badge" id="agenda-badge-top" style="display: none;">0</span>
+        </button>
+        <button class="nav-item" data-nav="historial" onclick="navigate('historial')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>
+          Historial
+        </button>
+      </nav>
+      <div class="topbar-right">
+        <!-- Comparison counter (HU-58) -->
+        <button class="compare-counter" id="compare-counter" onclick="navigate('compare')" aria-label="Ver comparación" style="display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3v18M3 9h6M21 9h-6M15 3v18M3 15h6M15 15h6"/></svg>
+          <span class="compare-count" id="compare-count">0</span>
+        </button>
+        <button class="topbar-user" id="user-trigger" onclick="toggleUserMenu(event)">
+          <span id="user-initials">--</span>
+        </button>
+      </div>
+      <!-- User menu -->
+      <div class="user-menu" id="user-menu">
+        <button class="user-menu-item" onclick="navigate('profile'); closeUserMenu()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Mi perfil
+        </button>
+        <div class="divider"></div>
+        <button class="user-menu-item danger" onclick="logout()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg>
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <main class="main">
+
+      <!-- SCREEN: SEARCH (HU-06, HU-07 trigger, HU-05) -->
+      <section class="screen active" data-screen="search">
+        <div class="hero">
+          <h1>Encontrá <em>el servicio</em><br>que necesita tu hogar</h1>
+          <p>Buscá entre proveedores cercanos a tu zona</p>
+        </div>
+
+        <div class="search-box">
+          <svg class="icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="search-input" placeholder="¿Qué necesitás? (ej. chapeo, limpieza...)" autocomplete="off">
+          <button class="search-btn" onclick="doSearch()">Buscar</button>
+        </div>
+
+        <div class="label-up" style="margin-bottom: 10px;">O elegí por categoría</div>
+        <div class="category-grid" id="category-grid">
+          <!-- Categories rendered by JS -->
+        </div>
+      </section>
+
+      <!-- SCREEN: RESULTS (HU-08, HU-09, HU-10) -->
+      <section class="screen" data-screen="results">
+        <button class="back-link" onclick="navigate('search')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver a buscar
+        </button>
+
+        <div class="results-head">
+          <div>
+            <div class="display-lg" id="results-title">Resultados</div>
+            <div class="results-count" id="results-count">—</div>
+          </div>
+        </div>
+
+        <!-- Mobile filter pills -->
+        <div class="filters-bar" id="mobile-filters">
+          <!-- Pills rendered by JS -->
+        </div>
+
+        <div class="results-shell">
+          <!-- Desktop sidebar filters -->
+          <aside class="filter-sidebar" id="desktop-filters">
+            <div class="filter-group">
+              <div class="filter-label">Categoría</div>
+              <div id="cat-filter-list"></div>
+            </div>
+            <div class="filter-group">
+              <div class="filter-label">Ubicación</div>
+              <div id="loc-filter-list"></div>
+            </div>
+            <button class="btn btn-ghost" style="padding: 6px 10px; font-size: 12px;" onclick="clearFilters()">Limpiar filtros</button>
+          </aside>
+
+          <div class="results-main">
+            <div class="results-list" id="results-list">
+              <!-- Provider cards rendered by JS -->
+            </div>
+            <div class="no-results" id="no-results" style="display: none;">
+              <div class="icon">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+              </div>
+              <h3>Sin coincidencias</h3>
+              <p>Probá con otra palabra clave o ampliá tus filtros.</p>
+              <button class="btn btn-outline" onclick="clearSearchAndFilters()">Limpiar y volver a buscar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: PROVIDER PROFILE (HU-11, HU-12, HU-13) -->
+      <section class="screen" data-screen="provider">
+        <button class="back-link" onclick="navigate('results')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver a resultados
+        </button>
+
+        <div class="provider-layout">
+          <div>
+            <div class="provider-header">
+              <div class="top">
+                <div class="avatar" id="prov-avatar" style="background: #5E8470;">--</div>
+                <div style="flex: 1; min-width: 0;">
+                  <h1 id="prov-name">—</h1>
+                  <div class="provider-meta" style="margin-top: 6px;">
+                    <span class="rating">
+                      <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                      <span id="prov-rating">—</span>
+                    </span>
+                    <span class="dot">·</span>
+                    <span id="prov-reviews">— reseñas</span>
+                    <span class="dot">·</span>
+                    <span id="prov-location">—</span>
+                  </div>
+                  <div class="distance-badge" style="margin-top: 8px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+                    <span id="prov-distance">— km de tu ubicación</span>
+                  </div>
+                  <span class="provider-cat" id="prov-cat" style="margin-top: 8px;">—</span>
+                </div>
+              </div>
+              <p class="desc" id="prov-desc">—</p>
+              <div class="stat-row">
+                <div class="stat">
+                  <div class="num" id="prov-stat-rating">—</div>
+                  <div class="lbl">Calificación</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                  <div class="num" id="prov-stat-reviews">—</div>
+                  <div class="lbl">Reseñas</div>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat">
+                  <div class="num" id="prov-stat-services">—</div>
+                  <div class="lbl">Servicios</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="section-title">Servicios y precios</div>
+            <div id="services-list">
+              <!-- Service items rendered by JS -->
+            </div>
+
+            <div class="section-title">Disponibilidad</div>
+            <div class="avail-row" id="avail-list">
+              <!-- Availability days rendered by JS -->
+            </div>
+
+            <div class="section-title">Reseñas de clientes</div>
+            <div id="reviews-list">
+              <!-- Reviews rendered by JS -->
+            </div>
+          </div>
+
+          <div class="provider-side">
+            <div class="sticky-action">
+              <div class="total-info">
+                <span class="total-label">Servicio seleccionado</span>
+                <span class="total-price placeholder" id="selected-service-display">Elegí un servicio</span>
+              </div>
+              <button class="btn btn-primary" id="btn-request" onclick="goToDetails()" disabled>
+                Continuar
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+            <button class="btn btn-outline btn-full" id="btn-compare-profile" onclick="toggleCompareFromProfile()" style="margin-top: 10px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              <span id="compare-profile-label">Agregar a comparación</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: SERVICE DETAILS (HU-14, HU-15, HU-16) -->
+      <section class="screen" data-screen="details">
+        <button class="back-link" onclick="navigate('provider')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver al perfil
+        </button>
+
+        <div class="details-shell">
+          <h1 class="display-lg" style="margin-bottom: 8px;">Detalles del servicio</h1>
+          <p class="small" style="margin-bottom: 24px;">Contale al proveedor qué necesitás exactamente. Después podrás definir fecha y hora.</p>
+
+          <div class="summary-card">
+            <div class="avatar" id="detail-avatar" style="background: #5E8470;">--</div>
+            <div class="sc-info">
+              <div class="sc-name" id="detail-prov-name">—</div>
+              <div class="sc-service" id="detail-service-name">—</div>
+            </div>
+            <button class="sc-change" onclick="navigate('results')">Cambiar</button>
+          </div>
+
+          <div class="field">
+            <label for="service-details-text">Describí el servicio que necesitás</label>
+            <textarea class="details-text" id="service-details-text" placeholder="Ej. Necesito chapeo del jardín delantero y trasero. El zacate tiene aprox. 30 cm. La casa es de dos pisos con un patio de unos 80m². Quisiera que también se lleven el zacate cortado."></textarea>
+            <div class="hint" id="details-counter">Mínimo 20 caracteres</div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 24px;">
+            <button class="btn btn-outline" onclick="navigate('provider')" style="flex: 1;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+              Otro proveedor
+            </button>
+            <button class="btn btn-primary" id="btn-continue-date" onclick="continueToDate()" style="flex: 2;" disabled>
+              Continuar a fecha y hora
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: DATE & TIME (HU-37, HU-38) -->
+      <section class="screen" data-screen="datetime">
+        <button class="back-link" onclick="navigate('details')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver a detalles
+        </button>
+
+        <div class="details-shell">
+          <h1 class="display-lg" style="margin-bottom: 8px;">Fecha y hora</h1>
+          <p class="small" style="margin-bottom: 24px;">Elegí cuándo querés el servicio. Solo se muestran los días en que el proveedor está disponible.</p>
+
+          <div class="summary-card">
+            <div class="avatar" id="dt-avatar" style="background: #5E8470;">--</div>
+            <div class="sc-info">
+              <div class="sc-name" id="dt-prov-name">—</div>
+              <div class="sc-service" id="dt-service-name">—</div>
+            </div>
+          </div>
+
+          <!-- Calendar -->
+          <div class="calendar">
+            <div class="cal-head">
+              <div class="cal-month" id="cal-month">—</div>
+              <div class="cal-nav">
+                <button id="cal-prev" onclick="calChangeMonth(-1)" aria-label="Mes anterior">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+                </button>
+                <button id="cal-next" onclick="calChangeMonth(1)" aria-label="Mes siguiente">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+              </div>
+            </div>
+            <div class="cal-weekdays">
+              <div class="cal-weekday">L</div>
+              <div class="cal-weekday">M</div>
+              <div class="cal-weekday">M</div>
+              <div class="cal-weekday">J</div>
+              <div class="cal-weekday">V</div>
+              <div class="cal-weekday">S</div>
+              <div class="cal-weekday">D</div>
+            </div>
+            <div class="cal-grid" id="cal-grid"></div>
+            <div class="cal-legend">
+              <span><span class="dot" style="background: var(--green);"></span>Día disponible</span>
+              <span><span class="dot" style="background: var(--border-strong);"></span>No disponible</span>
+            </div>
+          </div>
+
+          <!-- Time slots -->
+          <div class="label-up" style="margin-bottom: 8px;" id="time-label" style="display: none;">Hora</div>
+          <div class="time-slots" id="time-slots" style="display: none;"></div>
+
+          <div style="display: flex; gap: 10px; margin-top: 24px;">
+            <button class="btn btn-outline" onclick="navigate('details')" style="flex: 1;">Cancelar</button>
+            <button class="btn btn-primary" id="btn-send-request" onclick="sendRequest()" style="flex: 2;" disabled>
+              Enviar solicitud
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: REQUEST SENDING (HU-39, HU-40) -->
+      <section class="screen" data-screen="sending">
+        <div class="details-shell" style="padding-top: 32px;">
+          <div class="request-loading" id="sending-state">
+            <div class="spinner"></div>
+            <h2 class="h2" style="font-family: 'Fraunces', Georgia, serif; font-weight: 500; font-size: 20px; margin-bottom: 8px;">Enviando solicitud</h2>
+            <p class="small" id="sending-msg">El proveedor está revisando tu solicitud…</p>
+            <div style="margin-top: 14px;">
+              <span class="status-badge st-revision">
+                <span class="dot"></span>EN REVISIÓN
+              </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: REQUEST CONFIRMED (HU-42, HU-43) -->
+      <section class="screen" data-screen="confirmed">
+        <div class="details-shell" style="padding-top: 32px;">
+          <div style="text-align: center; margin-bottom: 28px;">
+            <div class="checkmark-circle">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg>
+            </div>
+            <h1 class="display-lg" style="margin-bottom: 6px;">¡Servicio confirmado!</h1>
+            <p class="small">El proveedor aceptó tu solicitud y está listo para atenderte.</p>
+          </div>
+
+          <div class="detail-block">
+            <h3>Resumen del servicio</h3>
+            <div class="contact-row" style="border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 6px;">
+              <div class="avatar" id="conf-avatar" style="background: #5E8470;">--</div>
+              <div class="contact-info">
+                <div class="contact-name" id="conf-prov-name">—</div>
+                <div style="font-size: 12.5px; color: var(--text-soft);" id="conf-service-name">—</div>
+              </div>
+            </div>
+            <div class="detail-row">
+              <span class="label">Fecha</span>
+              <span class="value" id="conf-date">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Hora</span>
+              <span class="value" id="conf-time">—</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Precio</span>
+              <span class="value" id="conf-price">—</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-outline" onclick="navigate('search')" style="flex: 1;">Inicio</button>
+            <button class="btn btn-primary" onclick="navigate('agenda')" style="flex: 2;">
+              Ver en mi agenda
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: REQUEST REJECTED (HU-41) -->
+      <section class="screen" data-screen="rejected">
+        <div class="details-shell" style="padding-top: 32px;">
+          <div style="text-align: center; margin-bottom: 28px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--danger-soft); color: var(--danger); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">
+              <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </div>
+            <h1 class="display-lg" style="margin-bottom: 6px;">Solicitud rechazada</h1>
+            <p class="small">El proveedor no puede atender tu solicitud en este horario. Te ayudamos a buscar otro proveedor disponible.</p>
+          </div>
+
+          <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button class="btn btn-outline" onclick="navigate('search')" style="flex: 1;">Inicio</button>
+            <button class="btn btn-primary" onclick="backToResults()" style="flex: 2;">
+              Buscar otro proveedor
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- SCREEN: AGENDA LIST (HU-44) -->
+      <section class="screen" data-screen="agenda">
+        <div class="hero">
+          <h1>Mi <em>agenda</em></h1>
+          <p>Tus servicios agendados y en ejecución</p>
+        </div>
+
+        <div id="agenda-list"></div>
+        <div class="empty-state" id="agenda-empty" style="display: none;">
+          <div class="icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          </div>
+          <h3>Aún no tenés servicios agendados</h3>
+          <p>Buscá un servicio y contratá un proveedor para verlos aquí.</p>
+          <button class="btn btn-outline" onclick="navigate('search')">Buscar un servicio</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: AGENDA DETAIL (HU-45, HU-46, HU-47, HU-48) -->
+      <section class="screen" data-screen="booking">
+        <button class="back-link" onclick="navigate('agenda')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver a mi agenda
+        </button>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+          <h1 class="display-lg">Servicio agendado</h1>
+          <span class="status-badge" id="booking-status">—</span>
+        </div>
+
+        <!-- Contact (HU-45) -->
+        <div class="detail-block">
+          <h3>Proveedor</h3>
+          <div class="contact-row">
+            <div class="avatar" id="bk-avatar" style="background: #5E8470;">--</div>
+            <div class="contact-info">
+              <div class="contact-name" id="bk-prov-name">—</div>
+              <div class="contact-phone" id="bk-prov-phone">—</div>
+            </div>
+            <div class="contact-actions">
+              <button class="contact-btn" onclick="showToast('Próximamente: llamada al proveedor')" aria-label="Llamar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </button>
+              <button class="contact-btn" onclick="showToast('Próximamente: chat con el proveedor')" aria-label="Mensaje">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service details -->
+        <div class="detail-block">
+          <h3>Detalles</h3>
+          <div class="detail-row">
+            <span class="label">Servicio</span>
+            <span class="value" id="bk-service">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Fecha</span>
+            <span class="value" id="bk-date">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Hora</span>
+            <span class="value" id="bk-time">—</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Precio</span>
+            <span class="value" id="bk-price">—</span>
+          </div>
+          <div class="detail-row" style="flex-direction: column; align-items: flex-start; gap: 4px;">
+            <span class="label" style="width: 100%;">Descripción</span>
+            <span class="value" id="bk-description" style="text-align: left; width: 100%; font-weight: 400; font-size: 13.5px; color: var(--text-soft);">—</span>
+          </div>
+        </div>
+
+        <!-- Status timeline -->
+        <div class="detail-block">
+          <h3>Seguimiento del servicio</h3>
+          <div class="timeline" id="bk-timeline"></div>
+        </div>
+
+        <!-- Demo panel (HU-46, HU-47, HU-48 simulation) -->
+        <div class="demo-panel">
+          <div class="demo-head">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 22h20L12 2z"/></svg>
+            Modo demostración
+          </div>
+          <p id="demo-explain">En la app real, el proveedor actualiza estos estados desde su lado. Para esta prueba, podés simular el avance.</p>
+          <button class="demo-btn" id="btn-advance" onclick="advanceBookingStatus()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 3l14 9-14 9V3z"/></svg>
+            <span id="advance-label">Simular siguiente estado</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SCREEN: COMPARISON (HU-59, HU-60, HU-61, HU-62) -->
+      <section class="screen" data-screen="compare">
+        <button class="back-link" onclick="navigate('search')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver
+        </button>
+
+        <div class="hero">
+          <h1>Comparar <em>proveedores</em></h1>
+          <p id="compare-subtitle">Compará lado a lado los proveedores que marcaste</p>
+        </div>
+
+        <div class="compare-scroll" id="compare-scroll">
+          <div class="compare-grid" id="compare-grid"></div>
+        </div>
+
+        <div class="empty-state" id="compare-empty" style="display: none;">
+          <div class="icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 3v18M3 9h6M21 9h-6M15 3v18M3 15h6M15 15h6"/></svg>
+          </div>
+          <h3>Tu lista de comparación está vacía</h3>
+          <p>Agregá proveedores con el botón <strong>+</strong> mientras buscás para compararlos aquí.</p>
+          <button class="btn btn-outline" onclick="navigate('search')">Buscar proveedores</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: RATING (HU-53, HU-54) -->
+      <section class="screen" data-screen="rating">
+        <div class="details-shell" style="padding-top: 24px;">
+          <div style="text-align: center; margin-bottom: 8px;">
+            <h1 class="display-lg" style="margin-bottom: 6px;">Calificá tu servicio</h1>
+            <p class="small" id="rating-prov-text">¿Cómo fue tu experiencia?</p>
+          </div>
+
+          <div class="star-picker" id="star-picker">
+            <button onclick="setRating(1)" data-star="1"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+            <button onclick="setRating(2)" data-star="2"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+            <button onclick="setRating(3)" data-star="3"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+            <button onclick="setRating(4)" data-star="4"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+            <button onclick="setRating(5)" data-star="5"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></button>
+          </div>
+          <div class="rating-label" id="rating-label"></div>
+
+          <div class="field">
+            <label for="rating-comment">Comentario (opcional)</label>
+            <textarea class="details-text" id="rating-comment" placeholder="Contanos cómo fue el servicio para ayudar a otros clientes…" style="min-height: 110px;"></textarea>
+          </div>
+
+          <button class="btn btn-primary btn-full" id="btn-submit-rating" onclick="submitRating()" disabled style="margin-top: 8px;">Enviar calificación</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: INCIDENCIA (HU-51) -->
+      <section class="screen" data-screen="incidencia">
+        <button class="back-link" onclick="navigate('booking')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver
+        </button>
+        <div class="details-shell">
+          <h1 class="display-lg" style="margin-bottom: 8px;">Reportar un problema</h1>
+          <p class="small" style="margin-bottom: 24px;">Contanos qué pasó. Nuestro equipo revisará tu caso y abrirá una disputa con el proveedor.</p>
+
+          <div class="field">
+            <label for="incidencia-text">¿Qué problema tuviste?</label>
+            <textarea class="details-text" id="incidencia-text" placeholder="Ej. El proveedor no completó todo el trabajo acordado. Quedó sin chapear la parte trasera del jardín." style="min-height: 120px;"></textarea>
+          </div>
+
+          <label class="field" style="display: block;">Evidencia (opcional)</label>
+          <div class="evidence-drop" onclick="addEvidence()">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+            <div style="font-size: 13px; font-weight: 500;">Adjuntar foto o nota</div>
+            <div style="font-size: 11.5px; color: var(--text-mute); margin-top: 2px;">Tocá para simular adjuntar evidencia</div>
+          </div>
+          <div class="evidence-chips" id="evidence-chips"></div>
+
+          <button class="btn btn-primary btn-full" id="btn-submit-incidencia" onclick="submitIncidencia()" disabled style="margin-top: 12px;">Enviar reporte y abrir disputa</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: HISTORIAL (HU-55, HU-56) -->
+      <section class="screen" data-screen="historial">
+        <div class="hero">
+          <h1>Mi <em>historial</em></h1>
+          <p>Servicios que has contratado</p>
+        </div>
+
+        <div class="hist-filters" id="hist-filters">
+          <button class="hist-filter active" data-filter="todos" onclick="setHistFilter('todos')">Todos</button>
+          <button class="hist-filter" data-filter="COMPLETADO" onclick="setHistFilter('COMPLETADO')">Completados</button>
+          <button class="hist-filter" data-filter="EN_DISPUTA" onclick="setHistFilter('EN_DISPUTA')">En disputa</button>
+          <button class="hist-filter" data-filter="RECHAZADO" onclick="setHistFilter('RECHAZADO')">Rechazados</button>
+          <button class="hist-filter" data-filter="activos" onclick="setHistFilter('activos')">En curso</button>
+        </div>
+
+        <div id="historial-list"></div>
+        <div class="empty-state" id="historial-empty" style="display: none;">
+          <div class="icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>
+          </div>
+          <h3>Sin servicios en esta categoría</h3>
+          <p>Cuando contrates y completes servicios, aparecerán aquí.</p>
+          <button class="btn btn-outline" onclick="navigate('search')">Buscar un servicio</button>
+        </div>
+      </section>
+
+      <!-- SCREEN: PROFILE (HU-04, HU-05) -->
+      <section class="screen" data-screen="profile">
+        <button class="back-link" onclick="navigate('search')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Volver
+        </button>
+
+        <div class="details-shell">
+          <h1 class="display-lg" style="margin-bottom: 8px;">Mi perfil</h1>
+          <p class="small" style="margin-bottom: 24px;">Mantené tus datos al día para que los proveedores te ubiquen fácilmente.</p>
+
+          <form id="form-profile">
+            <div class="field">
+              <label for="prof-name">Nombre completo</label>
+              <input type="text" id="prof-name" required>
+            </div>
+            <div class="field">
+              <label for="prof-email">Correo electrónico</label>
+              <input type="email" id="prof-email" disabled>
+              <div class="hint">El correo no se puede cambiar</div>
+            </div>
+            <div class="field">
+              <label for="prof-phone">Teléfono</label>
+              <input type="tel" id="prof-phone" placeholder="8888-8888">
+              <div class="err-text">Formato no válido</div>
+            </div>
+            <div class="field">
+              <label for="prof-address">Dirección</label>
+              <input type="text" id="prof-address" placeholder="Provincia, cantón, señas">
+              <div class="hint">Esta dirección se usa como referencia para encontrar proveedores cercanos.</div>
+            </div>
+            <div class="field">
+              <label for="prof-userloc">Mi ubicación (para filtros de búsqueda)</label>
+              <select id="prof-userloc">
+                <option value="San José">San José</option>
+                <option value="Escazú">Escazú</option>
+                <option value="Curridabat">Curridabat</option>
+                <option value="San Pedro">San Pedro</option>
+                <option value="Tibás">Tibás</option>
+                <option value="Heredia">Heredia</option>
+                <option value="Cartago">Cartago</option>
+                <option value="Alajuela">Alajuela</option>
+              </select>
+              <div class="hint">Esta ubicación aparece marcada como <strong>(TU UBICACIÓN)</strong> en los filtros.</div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-full" style="margin-top: 12px;">Guardar cambios</button>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- BOTTOM NAV (mobile) -->
+    <nav class="botnav">
+      <button class="nav-item" data-nav="search" onclick="navigate('search')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        Buscar
+      </button>
+      <button class="nav-item" data-nav="agenda" onclick="navigate('agenda')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        Agenda
+        <span class="nav-badge" id="agenda-badge-bot" style="display: none; position: absolute; top: 0; right: 50%; margin-right: -22px;">0</span>
+      </button>
+      <button class="nav-item" data-nav="historial" onclick="navigate('historial')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5M12 7v5l4 2"/></svg>
+        Historial
+      </button>
+      <button class="nav-item" data-nav="profile" onclick="navigate('profile')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Perfil
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+// ==================== MOCK DATA ====================
+
+const CATEGORIES = [
+  { id: 'jardineria', name: 'Jardinería', icon: 'leaf' },
+  { id: 'limpieza', name: 'Limpieza', icon: 'sparkles' },
+  { id: 'plomeria', name: 'Plomería', icon: 'droplet' },
+  { id: 'electricidad', name: 'Electricidad', icon: 'bolt' },
+  { id: 'reparaciones', name: 'Reparaciones', icon: 'wrench' },
+  { id: 'remodelacion', name: 'Remodelación', icon: 'hammer' },
+  { id: 'ninera', name: 'Niñera', icon: 'baby' },
+  { id: 'otros', name: 'Otros', icon: 'dots' }
+];
+
+const LOCATIONS = ['San José', 'Escazú', 'Curridabat', 'San Pedro', 'Tibás', 'Heredia', 'Cartago', 'Alajuela'];
+
+const PROVIDERS = [
+  {
+    id: 1, name: 'Carlos Méndez', initials: 'CM', color: '#5E8470',
+    category: 'jardineria', categoryName: 'Jardinería', location: 'Escazú', distanceKm: 4.2,
+    rating: 4.8, reviews: 47,
+    description: 'Especialista en chapeo, poda y mantenimiento de jardines residenciales. Más de 8 años de experiencia en el GAM. Equipo propio y tarifas justas.',
+    services: [
+      { name: 'Chapeo de zacate', price: 15000, unit: 'visita' },
+      { name: 'Poda de árboles pequeños', price: 25000, unit: 'árbol' },
+      { name: 'Limpieza profunda de jardín', price: 20000, unit: 'visita' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'],
+    comments: [
+      { author: 'María R.', rating: 5, text: 'Excelente trabajo. Muy puntual y dejó todo impecable. Sin duda lo vuelvo a contratar.' },
+      { author: 'Juan P.', rating: 5, text: 'Llevo varios meses usando sus servicios para el mantenimiento del jardín. Muy recomendado.' },
+      { author: 'Lucía S.', rating: 4, text: 'Buen trabajo, aunque tardó un poco más de lo esperado. El resultado vale la pena.' }
+    ]
+  },
+  {
+    id: 2, name: 'Ana Rodríguez', initials: 'AR', color: '#B07A3A',
+    category: 'limpieza', categoryName: 'Limpieza', location: 'Curridabat', distanceKm: 3.1,
+    rating: 4.9, reviews: 89,
+    description: 'Servicio de limpieza residencial profunda. Trabajo con equipo propio y productos ecológicos. Atención de lunes a viernes.',
+    services: [
+      { name: 'Limpieza general', price: 18000, unit: 'visita' },
+      { name: 'Limpieza profunda', price: 35000, unit: 'visita' },
+      { name: 'Limpieza post-construcción', price: 50000, unit: 'visita' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+    comments: [
+      { author: 'Pedro M.', rating: 5, text: 'Súper profesional. Llegó a tiempo y dejó la casa brillando.' },
+      { author: 'Sofía L.', rating: 5, text: 'La mejor opción para limpieza profunda. Vale cada colón.' },
+      { author: 'Diego A.', rating: 5, text: 'Recomendadísima. Atenta a los detalles.' }
+    ]
+  },
+  {
+    id: 3, name: 'José Picado', initials: 'JP', color: '#6A7A93',
+    category: 'jardineria', categoryName: 'Jardinería', location: 'San Pedro', distanceKm: 2.4,
+    rating: 4.6, reviews: 32,
+    description: 'Chapeo y mantenimiento básico de jardines. Servicio para fines de semana. Precios accesibles para clientes recurrentes.',
+    services: [
+      { name: 'Chapeo de zacate', price: 12000, unit: 'visita' },
+      { name: 'Limpieza de patios', price: 15000, unit: 'visita' }
+    ],
+    availability: ['Sáb', 'Dom'],
+    comments: [
+      { author: 'Ana B.', rating: 5, text: 'Buen precio y buen trabajo. Recomendado.' },
+      { author: 'Luis F.', rating: 4, text: 'Cumple bien con lo prometido.' }
+    ]
+  },
+  {
+    id: 4, name: 'Luis Gómez', initials: 'LG', color: '#8B5E5E',
+    category: 'plomeria', categoryName: 'Plomería', location: 'Tibás', distanceKm: 5.8,
+    rating: 4.7, reviews: 54,
+    description: 'Plomero profesional con certificación. Atiendo reparaciones, instalaciones nuevas y emergencias 24/7.',
+    services: [
+      { name: 'Reparación de fuga', price: 14000, unit: 'servicio' },
+      { name: 'Instalación de grifería', price: 18000, unit: 'punto' },
+      { name: 'Destape de cañerías', price: 22000, unit: 'servicio' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    comments: [
+      { author: 'Carmen V.', rating: 5, text: 'Vino el mismo día que llamé. Solucionó la fuga rápido y limpió todo después.' },
+      { author: 'Andrés T.', rating: 5, text: 'Profesional y honesto con los precios.' }
+    ]
+  },
+  {
+    id: 5, name: 'María Fernández', initials: 'MF', color: '#7F6F8E',
+    category: 'limpieza', categoryName: 'Limpieza', location: 'Heredia', distanceKm: 8.6,
+    rating: 4.5, reviews: 28,
+    description: 'Limpieza residencial básica. Disponible fines de semana. Trabajo a domicilio con todo el equipo necesario.',
+    services: [
+      { name: 'Limpieza general', price: 15000, unit: 'visita' },
+      { name: 'Limpieza de baños', price: 8000, unit: 'baño' }
+    ],
+    availability: ['Sáb', 'Dom'],
+    comments: [
+      { author: 'Roberto C.', rating: 5, text: 'Muy amable y eficiente.' },
+      { author: 'Isabel N.', rating: 4, text: 'Buena experiencia, voy a repetir.' }
+    ]
+  },
+  {
+    id: 6, name: 'Daniel Vargas', initials: 'DV', color: '#4F7888',
+    category: 'electricidad', categoryName: 'Electricidad', location: 'San José', distanceKm: 1.2,
+    rating: 4.9, reviews: 71,
+    description: 'Electricista certificado por el CFIA. Instalaciones residenciales y comerciales pequeñas. Diagnóstico sin costo.',
+    services: [
+      { name: 'Cambio de tomacorriente', price: 8000, unit: 'punto' },
+      { name: 'Instalación de luminaria', price: 12000, unit: 'punto' },
+      { name: 'Revisión eléctrica', price: 20000, unit: 'visita' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+    comments: [
+      { author: 'Patricia G.', rating: 5, text: 'Excelente trabajo y muy profesional. Lo recomiendo al 100%.' },
+      { author: 'Marco D.', rating: 5, text: 'Vino, hizo el trabajo limpio y rápido. Excelente.' }
+    ]
+  },
+  {
+    id: 7, name: 'Roberto Salas', initials: 'RS', color: '#7A6F4A',
+    category: 'reparaciones', categoryName: 'Reparaciones', location: 'Cartago', distanceKm: 12.4,
+    rating: 4.7, reviews: 41,
+    description: 'Reparaciones varias del hogar: muebles, ventanas, puertas, instalación de cortinas y más. Manitas de oro.',
+    services: [
+      { name: 'Instalación de cortinas', price: 12000, unit: 'punto' },
+      { name: 'Reparación de muebles', price: 15000, unit: 'servicio' },
+      { name: 'Ajuste de puertas', price: 8000, unit: 'puerta' }
+    ],
+    availability: ['Mar', 'Jue', 'Sáb'],
+    comments: [
+      { author: 'Lorena V.', rating: 5, text: 'Súper hábil. Resolvió varias cosas en una sola visita.' }
+    ]
+  },
+  {
+    id: 8, name: 'Karla Jiménez', initials: 'KJ', color: '#5B7E6E',
+    category: 'jardineria', categoryName: 'Jardinería', location: 'Alajuela', distanceKm: 15.7,
+    rating: 4.8, reviews: 38,
+    description: 'Diseño y mantenimiento de jardines. Especialista en plantas ornamentales y jardines verticales.',
+    services: [
+      { name: 'Chapeo de zacate', price: 14000, unit: 'visita' },
+      { name: 'Diseño de jardín', price: 80000, unit: 'proyecto' },
+      { name: 'Mantenimiento mensual', price: 35000, unit: 'mes' }
+    ],
+    availability: ['Lun', 'Mié', 'Vie', 'Sáb'],
+    comments: [
+      { author: 'Beatriz O.', rating: 5, text: 'Transformó mi jardín. Súper creativa y profesional.' }
+    ]
+  },
+  {
+    id: 9, name: 'Patricia Rojas', initials: 'PR', color: '#9C6B82',
+    category: 'ninera', categoryName: 'Niñera', location: 'San José', distanceKm: 1.8,
+    rating: 4.9, reviews: 62,
+    description: 'Niñera profesional con curso de primeros auxilios. Experiencia con niños de 0 a 10 años. Referencias verificables.',
+    services: [
+      { name: 'Cuidado por horas', price: 3500, unit: 'hora' },
+      { name: 'Cuidado nocturno', price: 4500, unit: 'hora' },
+      { name: 'Cuidado de fin de semana', price: 30000, unit: 'día' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    comments: [
+      { author: 'Mariana L.', rating: 5, text: 'Excelente trato con mis hijos. Muy responsable y cariñosa.' },
+      { author: 'Felipe R.', rating: 5, text: 'Confío plenamente en ella. Mis hijos la adoran.' }
+    ]
+  },
+  {
+    id: 10, name: 'Sandra Mora', initials: 'SM', color: '#A07868',
+    category: 'ninera', categoryName: 'Niñera', location: 'Curridabat', distanceKm: 3.4,
+    rating: 4.7, reviews: 34,
+    description: 'Niñera con formación en educación preescolar. Actividades didácticas y apoyo escolar incluidos.',
+    services: [
+      { name: 'Cuidado por horas', price: 4000, unit: 'hora' },
+      { name: 'Apoyo escolar + cuidado', price: 5000, unit: 'hora' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie'],
+    comments: [
+      { author: 'Adriana M.', rating: 5, text: 'Mi hijo mejoró mucho en lectura desde que ella lo cuida.' }
+    ]
+  },
+  {
+    id: 11, name: 'Esteban Quirós', initials: 'EQ', color: '#566A85',
+    category: 'otros', categoryName: 'Otros · Mudanzas', location: 'San José', distanceKm: 2.1,
+    rating: 4.6, reviews: 23,
+    description: 'Servicio de mudanzas pequeñas y traslados. Tengo vehículo cerrado y dos asistentes. Ideal para apartamentos.',
+    services: [
+      { name: 'Mudanza pequeña local', price: 35000, unit: 'servicio' },
+      { name: 'Traslado de muebles', price: 18000, unit: 'viaje' },
+      { name: 'Embalaje + traslado', price: 50000, unit: 'servicio' }
+    ],
+    availability: ['Sáb', 'Dom'],
+    comments: [
+      { author: 'Gabriela P.', rating: 5, text: 'Súper organizado. Llegó con todo lo necesario y movió mi apartamento en una mañana.' }
+    ]
+  },
+  {
+    id: 12, name: 'Lucía Vega', initials: 'LV', color: '#6E8268',
+    category: 'otros', categoryName: 'Otros · Mascotas', location: 'Escazú', distanceKm: 4.5,
+    rating: 4.8, reviews: 51,
+    description: 'Cuidado de mascotas en su hogar mientras viajás. Paseos diarios, alimentación y cariño. Veterinaria de turno.',
+    services: [
+      { name: 'Paseo de perros', price: 5000, unit: 'paseo' },
+      { name: 'Cuidado por día (sin estadía)', price: 12000, unit: 'día' },
+      { name: 'Cuidado con estadía nocturna', price: 25000, unit: 'noche' }
+    ],
+    availability: ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'],
+    comments: [
+      { author: 'Diego C.', rating: 5, text: 'Mi perro queda feliz cada vez. Recibo fotos y videos todos los días.' }
+    ]
+  },
+  {
+    id: 13, name: 'Felipe Castro', initials: 'FC', color: '#8B7A4B',
+    category: 'otros', categoryName: 'Otros · Armado de muebles', location: 'San Pedro', distanceKm: 2.7,
+    rating: 4.7, reviews: 29,
+    description: 'Armado y montaje de muebles de paquete (IKEA, Office Depot, Importadora Monge). Herramientas propias.',
+    services: [
+      { name: 'Armado de mueble simple', price: 8000, unit: 'mueble' },
+      { name: 'Armado de mueble complejo', price: 15000, unit: 'mueble' },
+      { name: 'Anclaje a pared', price: 5000, unit: 'punto' }
+    ],
+    availability: ['Mar', 'Jue', 'Sáb', 'Dom'],
+    comments: [
+      { author: 'Natalia G.', rating: 5, text: 'Me armó toda la oficina en 4 horas. Rápido y prolijo.' }
+    ]
+  }
+];
+
+const CAT_ICONS = {
+  jardineria: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 22c1-4 0-8-4-12 0 0 4 0 8 4M12 22c-1-4 0-8 4-12 0 0-4 0-8 4M12 22V8"/></svg>',
+  limpieza: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v3M5.6 5.6l2 2M3 12h3M5.6 18.4l2-2M18.4 5.6l-2 2M21 12h-3M18.4 18.4l-2-2M12 18v3M12 9a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg>',
+  plomeria: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
+  electricidad: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+  reparaciones: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
+  remodelacion: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 6l7 7-3 3-7-7 3-3z M10 9l-7 7v5h5l7-7"/></svg>',
+  ninera: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12a3 3 0 1 0 6 0 3 3 0 0 0-6 0z M12 3v2 M12 8c-2 0-3 1-3 3 M15 11c0-2-1-3-3-3 M5 21c0-3 3-5 7-5s7 2 7 5"/></svg>',
+  otros: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="6" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>'
+};
+
+// ==================== STATE ====================
+
+const state = {
+  currentScreen: 'login',
+  authMode: 'login',
+  user: null,
+  searchQuery: '',
+  activeFilters: { categories: [], locations: [] },
+  selectedProvider: null,
+  selectedService: null,
+  serviceDetails: ''
+};
+
+// ==================== HELPERS ====================
+
+function fmtPrice(n) {
+  return '₡' + n.toLocaleString('es-CR');
+}
+
+function getInitials(name) {
+  return name.split(' ').filter(Boolean).slice(0, 2).map(p => p[0].toUpperCase()).join('');
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast ' + type;
+  requestAnimationFrame(() => t.classList.add('show'));
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ==================== NAVIGATION ====================
+
+function navigate(screen) {
+  state.currentScreen = screen;
+  document.querySelectorAll('[data-screen]').forEach(el => {
+    el.classList.toggle('active', el.dataset.screen === screen);
+  });
+  document.querySelectorAll('[data-nav]').forEach(el => {
+    el.classList.toggle('active', el.dataset.nav === screen);
+  });
+  // Render screen-specific content
+  if (screen === 'agenda') renderAgenda();
+  if (screen === 'compare') renderCompare();
+  if (screen === 'historial') renderHistorial();
+  window.scrollTo(0, 0);
+  closeUserMenu();
+}
+
+function showAppShell() {
+  document.getElementById('auth-wrap').style.display = 'none';
+  document.getElementById('app-shell').classList.add('show');
+  document.getElementById('user-initials').textContent = state.user ? getInitials(state.user.name) : '--';
+  updateAgendaBadge();
+  updateCompareCounter();
+  navigate('search');
+  renderProfile();
+}
+
+function showAuth() {
+  document.getElementById('auth-wrap').style.display = 'flex';
+  document.getElementById('app-shell').classList.remove('show');
+  switchAuth('login');
+}
+
+// ==================== AUTH ====================
+
+function switchAuth(mode) {
+  state.authMode = mode;
+  document.querySelectorAll('.auth-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.mode === mode);
+  });
+  document.getElementById('form-login').style.display = mode === 'login' ? 'block' : 'none';
+  document.getElementById('form-register').style.display = mode === 'register' ? 'block' : 'none';
+  document.getElementById('form-forgot').style.display = mode === 'forgot' ? 'block' : 'none';
+  document.querySelector('.auth-tabs').style.display = mode === 'forgot' ? 'none' : 'flex';
+}
+
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.addEventListener('click', () => switchAuth(tab.dataset.mode));
+});
+
+document.getElementById('link-forgot').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchAuth('forgot');
+});
+document.getElementById('link-back-login').addEventListener('click', (e) => {
+  e.preventDefault();
+  switchAuth('login');
+});
+
+document.getElementById('form-login').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value.trim() || 'andres@correo.com';
+  const name = email.split('@')[0].split(/[._-]/).map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ') || 'Andrés Mora';
+  state.user = loadUser() || {
+    name: name === '' ? 'Andrés Mora' : name,
+    email: email,
+    phone: '8888-8888',
+    address: 'San José, Costa Rica',
+    userLocation: 'San José'
+  };
+  if (!state.user.userLocation) state.user.userLocation = 'San José';
+  saveUser();
+  showAppShell();
+  showToast('¡Bienvenido a HogarYa!', 'success');
+});
+
+document.getElementById('form-register').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  if (!name || !email || pass.length < 8) {
+    showToast('Verificá los datos del formulario');
+    return;
+  }
+  state.user = { name, email, phone: '', address: '', userLocation: 'San José' };
+  saveUser();
+  showAppShell();
+  showToast('Cuenta creada exitosamente', 'success');
+});
+
+document.getElementById('form-forgot').addEventListener('submit', (e) => {
+  e.preventDefault();
+  showToast('Enlace de recuperación enviado al correo', 'success');
+  setTimeout(() => switchAuth('login'), 1500);
+});
+
+function logout() {
+  state.user = null;
+  state.selectedProvider = null;
+  state.selectedService = null;
+  state.serviceDetails = '';
+  state.activeFilters = { categories: [], locations: [] };
+  state.bookings = [];
+  state.currentBooking = null;
+  state.comparison = [];
+  try {
+    localStorage.removeItem('hogarya_user');
+    localStorage.removeItem('hogarya_bookings');
+    localStorage.removeItem('hogarya_compare');
+  } catch (e) {}
+  updateAgendaBadge();
+  updateCompareCounter();
+  closeUserMenu();
+  showAuth();
+}
+
+// ==================== USER MENU ====================
+
+function toggleUserMenu(e) {
+  e.stopPropagation();
+  document.getElementById('user-menu').classList.toggle('show');
+}
+function closeUserMenu() {
+  document.getElementById('user-menu').classList.remove('show');
+}
+document.addEventListener('click', closeUserMenu);
+
+// ==================== PERSISTENCE ====================
+
+function saveUser() {
+  try { localStorage.setItem('hogarya_user', JSON.stringify(state.user)); } catch (e) {}
+}
+function loadUser() {
+  try { return JSON.parse(localStorage.getItem('hogarya_user')); } catch (e) { return null; }
+}
+
+// ==================== SEARCH SCREEN ====================
+
+function renderCategories() {
+  const grid = document.getElementById('category-grid');
+  grid.innerHTML = CATEGORIES.map(c => {
+    const count = PROVIDERS.filter(p => p.category === c.id).length;
+    return `
+      <button class="category-card" onclick="searchByCategory('${c.id}')">
+        <div class="cat-icon">${CAT_ICONS[c.id]}</div>
+        <div class="cat-name">${c.name}</div>
+        <div class="cat-count">${count} ${count === 1 ? 'proveedor' : 'proveedores'}</div>
+      </button>
+    `;
+  }).join('');
+}
+
+function searchByCategory(catId) {
+  state.searchQuery = '';
+  state.activeFilters = { categories: [catId], locations: [] };
+  document.getElementById('search-input').value = '';
+  navigate('results');
+  renderResults();
+}
+
+function doSearch() {
+  const query = document.getElementById('search-input').value.trim();
+  state.searchQuery = query;
+  state.activeFilters = { categories: [], locations: [] };
+  navigate('results');
+  renderResults();
+}
+
+document.getElementById('search-input').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') doSearch();
+});
+
+// ==================== RESULTS SCREEN ====================
+
+function getFilteredProviders() {
+  return PROVIDERS.filter(p => {
+    // Filter by search query
+    if (state.searchQuery) {
+      const q = state.searchQuery.toLowerCase();
+      const matchesQuery =
+        p.name.toLowerCase().includes(q) ||
+        p.categoryName.toLowerCase().includes(q) ||
+        p.description.toLowerCase().includes(q) ||
+        p.services.some(s => s.name.toLowerCase().includes(q));
+      if (!matchesQuery) return false;
+    }
+    // Filter by category
+    if (state.activeFilters.categories.length > 0 && !state.activeFilters.categories.includes(p.category)) {
+      return false;
+    }
+    // Filter by location
+    if (state.activeFilters.locations.length > 0 && !state.activeFilters.locations.includes(p.location)) {
+      return false;
+    }
+    return true;
+  });
+}
+
+function renderResults() {
+  const filtered = getFilteredProviders();
+  const list = document.getElementById('results-list');
+  const noRes = document.getElementById('no-results');
+  const title = document.getElementById('results-title');
+  const count = document.getElementById('results-count');
+
+  // Title
+  if (state.searchQuery) {
+    title.textContent = `Resultados para "${state.searchQuery}"`;
+  } else if (state.activeFilters.categories.length === 1) {
+    const cat = CATEGORIES.find(c => c.id === state.activeFilters.categories[0]);
+    title.textContent = cat ? cat.name : 'Resultados';
+  } else {
+    title.textContent = 'Todos los servicios';
+  }
+
+  count.innerHTML = `<strong>${filtered.length}</strong> ${filtered.length === 1 ? 'proveedor encontrado' : 'proveedores encontrados'}`;
+
+  // Render filter pills (mobile)
+  renderMobileFilters();
+  // Render sidebar filters (desktop)
+  renderDesktopFilters();
+
+  if (filtered.length === 0) {
+    list.style.display = 'none';
+    noRes.style.display = 'block';
+  } else {
+    list.style.display = 'grid';
+    noRes.style.display = 'none';
+    list.innerHTML = filtered.map(p => {
+      const minPrice = Math.min(...p.services.map(s => s.price));
+      const inCompare = state.comparison.includes(p.id);
+      return `
+        <div class="provider-card-wrap" style="position: relative;">
+        <button class="compare-btn ${inCompare ? 'added' : ''}" onclick="event.stopPropagation(); toggleCompare(${p.id})" aria-label="Agregar a comparación" title="${inCompare ? 'Quitar de comparación' : 'Agregar a comparación'}">
+          ${inCompare
+            ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2"><path d="M5 13l4 4L19 7"/></svg>'
+            : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>'}
+        </button>
+        <button class="provider-card" onclick="viewProvider(${p.id})">
+          <div class="avatar" style="background: ${p.color};">${p.initials}</div>
+          <div class="provider-info">
+            <span class="provider-cat">${p.categoryName}</span>
+            <div class="provider-name">${p.name}</div>
+            <div class="provider-meta">
+              <span class="rating">
+                <svg class="star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                ${p.rating}
+              </span>
+              <span class="dot">·</span>
+              <span>${p.reviews} reseñas</span>
+              <span class="dot">·</span>
+              <span>${p.location}</span>
+            </div>
+            <div class="distance-badge">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5"/></svg>
+              A ${p.distanceKm} km de tu ubicación
+            </div>
+            <div class="provider-price">
+              <span class="from">desde</span>
+              <span class="price-amount">${fmtPrice(minPrice)}</span>
+            </div>
+          </div>
+        </button>
+        </div>
+      `;
+    }).join('');
+  }
+}
+
+function renderMobileFilters() {
+  const userLoc = state.user && state.user.userLocation;
+  const bar = document.getElementById('mobile-filters');
+  const cats = CATEGORIES.map(c => `
+    <button class="filter-pill ${state.activeFilters.categories.includes(c.id) ? 'active' : ''}" onclick="toggleCategory('${c.id}')">${c.name}</button>
+  `).join('');
+  // Sort: put user's location first
+  const sortedLocs = userLoc ? [userLoc, ...LOCATIONS.filter(l => l !== userLoc)] : LOCATIONS;
+  const locs = sortedLocs.map(l => {
+    const isYour = l === userLoc;
+    const label = isYour ? `${l} <span class="tu-ubi">(TU UBICACIÓN)</span>` : l;
+    return `<button class="filter-pill ${state.activeFilters.locations.includes(l) ? 'active' : ''} ${isYour ? 'is-yours' : ''}" onclick="toggleLocation('${l}')">${label}</button>`;
+  }).join('');
+  bar.innerHTML = cats + locs;
+}
+
+function renderDesktopFilters() {
+  const userLoc = state.user && state.user.userLocation;
+  const catList = document.getElementById('cat-filter-list');
+  const locList = document.getElementById('loc-filter-list');
+  catList.innerHTML = CATEGORIES.map(c => `
+    <label class="filter-opt ${state.activeFilters.categories.includes(c.id) ? 'active' : ''}">
+      <input type="checkbox" ${state.activeFilters.categories.includes(c.id) ? 'checked' : ''} onchange="toggleCategory('${c.id}')">
+      ${c.name}
+    </label>
+  `).join('');
+  const sortedLocs = userLoc ? [userLoc, ...LOCATIONS.filter(l => l !== userLoc)] : LOCATIONS;
+  locList.innerHTML = sortedLocs.map(l => {
+    const isYour = l === userLoc;
+    const marker = isYour ? ` <span class="tu-ubi-side">(TU UBICACIÓN)</span>` : '';
+    return `
+      <label class="filter-opt ${state.activeFilters.locations.includes(l) ? 'active' : ''} ${isYour ? 'is-yours' : ''}">
+        <input type="checkbox" ${state.activeFilters.locations.includes(l) ? 'checked' : ''} onchange="toggleLocation('${l}')">
+        ${l}${marker}
+      </label>
+    `;
+  }).join('');
+}
+
+function toggleCategory(catId) {
+  const arr = state.activeFilters.categories;
+  const idx = arr.indexOf(catId);
+  if (idx >= 0) arr.splice(idx, 1); else arr.push(catId);
+  renderResults();
+}
+
+function toggleLocation(loc) {
+  const arr = state.activeFilters.locations;
+  const idx = arr.indexOf(loc);
+  if (idx >= 0) arr.splice(idx, 1); else arr.push(loc);
+  renderResults();
+}
+
+function clearFilters() {
+  state.activeFilters = { categories: [], locations: [] };
+  renderResults();
+}
+
+function clearSearchAndFilters() {
+  state.searchQuery = '';
+  state.activeFilters = { categories: [], locations: [] };
+  document.getElementById('search-input').value = '';
+  navigate('search');
+}
+
+// ==================== PROVIDER PROFILE ====================
+
+function viewProvider(id) {
+  const p = PROVIDERS.find(x => x.id === id);
+  if (!p) return;
+  state.selectedProvider = p;
+  state.selectedService = null;
+  renderProvider();
+  navigate('provider');
+}
+
+function renderProvider() {
+  const p = state.selectedProvider;
+  if (!p) return;
+
+  document.getElementById('prov-avatar').textContent = p.initials;
+  document.getElementById('prov-avatar').style.background = p.color;
+  document.getElementById('prov-name').textContent = p.name;
+  document.getElementById('prov-rating').textContent = p.rating;
+  document.getElementById('prov-reviews').textContent = `${p.reviews} reseñas`;
+  document.getElementById('prov-location').textContent = p.location;
+  document.getElementById('prov-distance').textContent = `A ${p.distanceKm} km de tu ubicación`;
+  document.getElementById('prov-cat').textContent = p.categoryName;
+  document.getElementById('prov-desc').textContent = p.description;
+  document.getElementById('prov-stat-rating').textContent = p.rating;
+  document.getElementById('prov-stat-reviews').textContent = p.reviews;
+  document.getElementById('prov-stat-services').textContent = p.services.length;
+
+  // Services
+  const svcList = document.getElementById('services-list');
+  svcList.innerHTML = p.services.map((s, idx) => `
+    <button class="service-item" data-svc="${idx}" onclick="selectService(${idx})">
+      <div>
+        <div class="svc-name">${s.name}</div>
+        <div class="svc-unit">por ${s.unit}</div>
+      </div>
+      <div class="svc-price">${fmtPrice(s.price)}</div>
+    </button>
+  `).join('');
+
+  // Availability
+  const days = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+  const avail = document.getElementById('avail-list');
+  avail.innerHTML = days.map(d => `
+    <div class="avail-day ${p.availability.includes(d) ? 'has' : ''}">${d}</div>
+  `).join('');
+
+  // Reviews
+  const reviews = document.getElementById('reviews-list');
+  reviews.innerHTML = p.comments.map(c => {
+    const stars = Array(5).fill(0).map((_, i) =>
+      `<svg viewBox="0 0 24 24" fill="${i < c.rating ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`
+    ).join('');
+    return `
+      <div class="review">
+        <div class="review-head">
+          <span class="review-author">${c.author}</span>
+          <span class="review-stars">${stars}</span>
+        </div>
+        <div class="review-text">${c.text}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Reset action
+  document.getElementById('selected-service-display').textContent = 'Elegí un servicio';
+  document.getElementById('selected-service-display').classList.add('placeholder');
+  document.getElementById('btn-request').disabled = true;
+  updateCompareProfileBtn();
+}
+
+function selectService(idx) {
+  state.selectedService = idx;
+  const p = state.selectedProvider;
+  const svc = p.services[idx];
+  document.querySelectorAll('.service-item').forEach((el, i) => {
+    el.classList.toggle('selected', i === idx);
+  });
+  const display = document.getElementById('selected-service-display');
+  display.innerHTML = `<span style="font-size: 12px; color: var(--text-mute); font-family: 'Manrope', sans-serif; font-weight: 400;">${svc.name}</span><br>${fmtPrice(svc.price)} <span style="font-size: 12px; color: var(--text-mute); font-family: 'Manrope', sans-serif; font-weight: 400;">/ ${svc.unit}</span>`;
+  display.classList.remove('placeholder');
+  document.getElementById('btn-request').disabled = false;
+}
+
+function goToDetails() {
+  if (state.selectedService === null) return;
+  renderDetails();
+  navigate('details');
+}
+
+// ==================== SERVICE DETAILS ====================
+
+function renderDetails() {
+  const p = state.selectedProvider;
+  const svc = p.services[state.selectedService];
+  document.getElementById('detail-avatar').textContent = p.initials;
+  document.getElementById('detail-avatar').style.background = p.color;
+  document.getElementById('detail-prov-name').textContent = p.name;
+  document.getElementById('detail-service-name').textContent = `${svc.name} · ${fmtPrice(svc.price)}`;
+  document.getElementById('service-details-text').value = state.serviceDetails;
+  updateDetailsCounter();
+}
+
+function updateDetailsCounter() {
+  const txt = document.getElementById('service-details-text').value;
+  state.serviceDetails = txt;
+  const len = txt.length;
+  const counter = document.getElementById('details-counter');
+  const btn = document.getElementById('btn-continue-date');
+  if (len === 0) {
+    counter.textContent = 'Mínimo 20 caracteres';
+    counter.style.color = '';
+    btn.disabled = true;
+  } else if (len < 20) {
+    counter.textContent = `${20 - len} caracteres más para continuar`;
+    counter.style.color = 'var(--warning)';
+    btn.disabled = true;
+  } else {
+    counter.textContent = `${len} caracteres`;
+    counter.style.color = 'var(--green)';
+    btn.disabled = false;
+  }
+}
+
+document.getElementById('service-details-text').addEventListener('input', updateDetailsCounter);
+
+function continueToDate() {
+  if (state.serviceDetails.length < 20) return;
+  initDatetimeScreen();
+  navigate('datetime');
+}
+
+// ==================== DATE & TIME (HU-37, HU-38) ====================
+
+const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const DAY_NAMES_FULL = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const MONTH_NAMES = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+
+state.calendar = { year: 0, month: 0, today: new Date() };
+state.selectedDate = null;
+state.selectedTime = null;
+
+function initDatetimeScreen() {
+  const p = state.selectedProvider;
+  const svc = p.services[state.selectedService];
+  document.getElementById('dt-avatar').textContent = p.initials;
+  document.getElementById('dt-avatar').style.background = p.color;
+  document.getElementById('dt-prov-name').textContent = p.name;
+  document.getElementById('dt-service-name').textContent = `${svc.name} · ${fmtPrice(svc.price)}`;
+  // Reset selections
+  state.selectedDate = null;
+  state.selectedTime = null;
+  document.getElementById('btn-send-request').disabled = true;
+  // Set calendar to current month
+  const now = new Date();
+  state.calendar.year = now.getFullYear();
+  state.calendar.month = now.getMonth();
+  state.calendar.today = now;
+  renderCalendar();
+  // Hide time slots until date is picked
+  document.getElementById('time-slots').style.display = 'none';
+  document.getElementById('time-label').style.display = 'none';
+}
+
+function renderCalendar() {
+  const p = state.selectedProvider;
+  const { year, month, today } = state.calendar;
+  document.getElementById('cal-month').textContent = `${MONTH_NAMES[month]} ${year}`;
+
+  // Disable prev if it would go before current month
+  const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+  document.getElementById('cal-prev').disabled = isCurrentMonth;
+
+  // Build grid - Mon=0, Sun=6 (ISO style)
+  const firstDay = new Date(year, month, 1);
+  const dow = (firstDay.getDay() + 6) % 7; // 0 = Mon
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let html = '';
+  // Empty cells before first
+  for (let i = 0; i < dow; i++) html += '<div class="cal-day empty"></div>';
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date = new Date(year, month, day);
+    const dayOfWeek = (date.getDay() + 6) % 7;
+    const dayName = DAY_NAMES[dayOfWeek];
+    const isAvail = p.availability.includes(dayName);
+    const isPast = date < new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    const isToday = date.toDateString() === today.toDateString();
+    const isSelected = state.selectedDate && date.toDateString() === state.selectedDate.toDateString();
+
+    let classes = ['cal-day'];
+    let disabled = false;
+    if (isPast) {
+      classes.push('no-avail');
+      disabled = true;
+    } else if (!isAvail) {
+      classes.push('no-avail');
+      disabled = true;
+    } else {
+      classes.push('has-avail');
+    }
+    if (isToday) classes.push('today');
+    if (isSelected) classes.push('selected');
+
+    html += `<button class="${classes.join(' ')}" ${disabled ? 'disabled' : ''} onclick="selectCalDay(${year}, ${month}, ${day})">${day}</button>`;
+  }
+
+  document.getElementById('cal-grid').innerHTML = html;
+}
+
+function calChangeMonth(delta) {
+  state.calendar.month += delta;
+  if (state.calendar.month < 0) {
+    state.calendar.month = 11;
+    state.calendar.year -= 1;
+  } else if (state.calendar.month > 11) {
+    state.calendar.month = 0;
+    state.calendar.year += 1;
+  }
+  renderCalendar();
+}
+
+function selectCalDay(year, month, day) {
+  state.selectedDate = new Date(year, month, day);
+  state.selectedTime = null;
+  renderCalendar();
+  renderTimeSlots();
+  document.getElementById('btn-send-request').disabled = true;
+}
+
+function renderTimeSlots() {
+  const slotsEl = document.getElementById('time-slots');
+  const labelEl = document.getElementById('time-label');
+  if (!state.selectedDate) {
+    slotsEl.style.display = 'none';
+    labelEl.style.display = 'none';
+    return;
+  }
+  slotsEl.style.display = 'grid';
+  labelEl.style.display = 'block';
+  slotsEl.innerHTML = TIME_SLOTS.map(t => {
+    const sel = state.selectedTime === t ? 'selected' : '';
+    return `<button class="time-slot ${sel}" onclick="selectTime('${t}')">${t}</button>`;
+  }).join('');
+}
+
+function selectTime(t) {
+  state.selectedTime = t;
+  renderTimeSlots();
+  document.getElementById('btn-send-request').disabled = false;
+}
+
+function formatDate(d) {
+  const dayName = DAY_NAMES_FULL[(d.getDay() + 6) % 7];
+  return `${dayName} ${d.getDate()} de ${MONTH_NAMES[d.getMonth()].toLowerCase()}`;
+}
+
+// ==================== SEND REQUEST (HU-39, HU-40, HU-41, HU-42) ====================
+
+state.bookings = []; // List of all booked services
+state.currentBooking = null;
+
+function generateBookingId() {
+  return 'bk-' + Date.now().toString(36) + Math.random().toString(36).substr(2, 4);
+}
+
+function sendRequest() {
+  if (!state.selectedDate || !state.selectedTime) return;
+  const p = state.selectedProvider;
+  const svc = p.services[state.selectedService];
+  const booking = {
+    id: generateBookingId(),
+    providerId: p.id,
+    providerName: p.name,
+    providerInitials: p.initials,
+    providerColor: p.color,
+    providerPhone: '+506 ' + (8000 + Math.floor(Math.random() * 1999)) + '-' + (1000 + Math.floor(Math.random() * 8999)),
+    serviceName: svc.name,
+    servicePrice: svc.price,
+    serviceUnit: svc.unit,
+    date: state.selectedDate.toISOString(),
+    time: state.selectedTime,
+    description: state.serviceDetails,
+    status: 'EN_REVISION',
+    statusHistory: [{ status: 'EN_REVISION', at: new Date().toISOString() }],
+    createdAt: new Date().toISOString()
+  };
+  state.currentBooking = booking;
+  state.bookings.push(booking);
+  saveBookings();
+  navigate('sending');
+
+  // Simulate provider response after delay (~3.5s)
+  // For demo flexibility: 90% accept, 10% reject (but seeded for visible demo)
+  const willAccept = Math.random() > 0.15; // mostly accept
+
+  setTimeout(() => {
+    if (willAccept) {
+      acceptBooking(booking.id);
+    } else {
+      rejectBooking(booking.id);
+    }
+  }, 3500);
+}
+
+function acceptBooking(bookingId) {
+  const b = state.bookings.find(x => x.id === bookingId);
+  if (!b) return;
+  b.status = 'CONFIRMADO';
+  b.statusHistory.push({ status: 'CONFIRMADO', at: new Date().toISOString() });
+  saveBookings();
+  if (state.currentScreen === 'sending') {
+    state.currentBooking = b;
+    renderConfirmedScreen();
+    navigate('confirmed');
+    showToast('¡Tu servicio fue confirmado!', 'success');
+  }
+  updateAgendaBadge();
+}
+
+function rejectBooking(bookingId) {
+  const b = state.bookings.find(x => x.id === bookingId);
+  if (!b) return;
+  b.status = 'RECHAZADO';
+  b.statusHistory.push({ status: 'RECHAZADO', at: new Date().toISOString() });
+  saveBookings();
+  if (state.currentScreen === 'sending') {
+    navigate('rejected');
+  }
+}
+
+function renderConfirmedScreen() {
+  const b = state.currentBooking;
+  if (!b) return;
+  document.getElementById('conf-avatar').textContent = b.providerInitials;
+  document.getElementById('conf-avatar').style.background = b.providerColor;
+  document.getElementById('conf-prov-name').textContent = b.providerName;
+  document.getElementById('conf-service-name').textContent = b.serviceName;
+  document.getElementById('conf-date').textContent = formatDate(new Date(b.date));
+  document.getElementById('conf-time').textContent = b.time;
+  document.getElementById('conf-price').textContent = fmtPrice(b.servicePrice);
+}
+
+function backToResults() {
+  // Take user back to results so they can pick another provider (HU-41)
+  navigate('results');
+}
+
+// ==================== AGENDA (HU-44) ====================
+
+function renderAgenda() {
+  const list = document.getElementById('agenda-list');
+  const empty = document.getElementById('agenda-empty');
+  // Show only active bookings (not rejected, not completado)
+  const active = state.bookings.filter(b => b.status !== 'RECHAZADO').reverse();
+  if (active.length === 0) {
+    list.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  list.style.display = 'block';
+  empty.style.display = 'none';
+  list.innerHTML = active.map(b => `
+    <button class="booking-card" onclick="openBooking('${b.id}')">
+      <div class="booking-head">
+        <div class="booking-info">
+          <div class="avatar" style="background: ${b.providerColor};">${b.providerInitials}</div>
+          <div class="booking-info-text">
+            <div class="booking-prov-name">${b.providerName}</div>
+            <div class="booking-service">${b.serviceName} · ${fmtPrice(b.servicePrice)}</div>
+          </div>
+        </div>
+        <span class="status-badge st-${b.status.toLowerCase().replace('_', '')}">
+          ${b.status !== 'COMPLETADO' ? '<span class="dot"></span>' : ''}${labelForStatus(b.status)}
+        </span>
+      </div>
+      <div class="booking-when">
+        <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        ${formatDate(new Date(b.date))} · ${b.time}
+      </div>
+    </button>
+  `).join('');
+}
+
+function labelForStatus(s) {
+  return {
+    EN_REVISION: 'En revisión',
+    CONFIRMADO: 'Confirmado',
+    EN_CAMINO: 'En camino',
+    EN_SITIO: 'En sitio',
+    INICIADO: 'Iniciado',
+    FINALIZACION: 'Finalización',
+    COMPLETADO: 'Completado',
+    EN_DISPUTA: 'En disputa',
+    RECHAZADO: 'Rechazado'
+  }[s] || s;
+}
+
+function updateAgendaBadge() {
+  const active = state.bookings.filter(b => b.status !== 'RECHAZADO' && b.status !== 'COMPLETADO');
+  const count = active.length;
+  ['agenda-badge-top', 'agenda-badge-bot'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (count > 0) {
+      el.style.display = 'inline-block';
+      el.textContent = count;
+    } else {
+      el.style.display = 'none';
+    }
+  });
+}
+
+// ==================== BOOKING DETAIL (HU-45, HU-46, HU-47, HU-48) ====================
+
+function openBooking(bookingId) {
+  const b = state.bookings.find(x => x.id === bookingId);
+  if (!b) return;
+  state.currentBooking = b;
+  renderBookingDetail();
+  navigate('booking');
+}
+
+function renderBookingDetail() {
+  const b = state.currentBooking;
+  if (!b) return;
+
+  document.getElementById('bk-avatar').textContent = b.providerInitials;
+  document.getElementById('bk-avatar').style.background = b.providerColor;
+  document.getElementById('bk-prov-name').textContent = b.providerName;
+  document.getElementById('bk-prov-phone').textContent = b.providerPhone;
+  document.getElementById('bk-service').textContent = b.serviceName;
+  document.getElementById('bk-date').textContent = formatDate(new Date(b.date));
+  document.getElementById('bk-time').textContent = b.time;
+  document.getElementById('bk-price').textContent = fmtPrice(b.servicePrice);
+  document.getElementById('bk-description').textContent = b.description;
+
+  const badge = document.getElementById('booking-status');
+  badge.className = 'status-badge st-' + b.status.toLowerCase().replace('_', '');
+  badge.innerHTML = (b.status !== 'COMPLETADO' ? '<span class="dot"></span>' : '') + labelForStatus(b.status);
+
+  renderTimeline(b);
+  updateAdvanceButton(b);
+  renderFinalizationPrompt(b);
+}
+
+const STATUS_FLOW = ['EN_REVISION', 'CONFIRMADO', 'EN_CAMINO', 'EN_SITIO', 'INICIADO', 'FINALIZACION'];
+
+function renderTimeline(b) {
+  const tl = document.getElementById('bk-timeline');
+  const labels = {
+    EN_REVISION: 'Solicitud enviada · en revisión',
+    CONFIRMADO: 'Confirmado por el proveedor',
+    EN_CAMINO: 'El proveedor está en camino',
+    EN_SITIO: 'El proveedor llegó al sitio',
+    INICIADO: 'Servicio iniciado',
+    FINALIZACION: 'Servicio finalizado (pendiente de confirmación)'
+  };
+  const currentIdx = STATUS_FLOW.indexOf(b.status);
+  tl.innerHTML = STATUS_FLOW.map((s, i) => {
+    const hist = b.statusHistory.find(h => h.status === s);
+    let cls = 'tl-item ';
+    if (i < currentIdx) cls += 'done';
+    else if (i === currentIdx) cls += 'active';
+    else cls += 'pending';
+    const timeStr = hist ? new Date(hist.at).toLocaleTimeString('es-CR', { hour: '2-digit', minute: '2-digit' }) : '—';
+    return `<div class="${cls}">
+      <div class="tl-title">${labels[s]}</div>
+      <div class="tl-time">${hist ? timeStr : 'Pendiente'}</div>
+    </div>`;
+  }).join('');
+}
+
+function updateAdvanceButton(b) {
+  const btn = document.getElementById('btn-advance');
+  const label = document.getElementById('advance-label');
+  const explainP = document.getElementById('demo-explain');
+  const panel = btn.closest('.demo-panel');
+
+  // Terminal states: hide demo panel
+  if (b.status === 'COMPLETADO' || b.status === 'EN_DISPUTA') {
+    panel.style.display = 'none';
+    return;
+  }
+  panel.style.display = 'block';
+
+  const idx = STATUS_FLOW.indexOf(b.status);
+  if (idx >= STATUS_FLOW.length - 1) {
+    // At FINALIZACION - the client now confirms/reports above; demo advancing is done
+    btn.disabled = true;
+    label.textContent = 'Esperando tu confirmación';
+    explainP.textContent = 'El proveedor finalizó el servicio. Confirmá arriba si quedaste conforme o reportá un problema.';
+    return;
+  }
+  btn.disabled = false;
+  const nextStatus = STATUS_FLOW[idx + 1];
+  const nextLabels = {
+    CONFIRMADO: 'Simular: Proveedor acepta',
+    EN_CAMINO: 'Simular: Proveedor en camino',
+    EN_SITIO: 'Simular: Proveedor llegó al sitio',
+    INICIADO: 'Simular: Servicio iniciado',
+    FINALIZACION: 'Simular: Servicio finalizado'
+  };
+  label.textContent = nextLabels[nextStatus];
+  explainP.textContent = 'En la app real, el proveedor actualiza estos estados desde su lado. Acá podés avanzarlos manualmente para ver el flujo completo.';
+}
+
+function advanceBookingStatus() {
+  const b = state.currentBooking;
+  if (!b) return;
+  const idx = STATUS_FLOW.indexOf(b.status);
+  if (idx >= STATUS_FLOW.length - 1) return;
+  const nextStatus = STATUS_FLOW[idx + 1];
+  b.status = nextStatus;
+  b.statusHistory.push({ status: nextStatus, at: new Date().toISOString() });
+  saveBookings();
+  renderBookingDetail();
+  updateAgendaBadge();
+  const toastMessages = {
+    EN_CAMINO: '📍 El proveedor está en camino',
+    EN_SITIO: '🏠 El proveedor llegó al sitio',
+    INICIADO: '▶️ El servicio ha iniciado',
+    FINALIZACION: '✓ El servicio ha finalizado'
+  };
+  if (toastMessages[nextStatus]) {
+    showToast(toastMessages[nextStatus], 'success');
+  }
+}
+
+// ==================== BOOKINGS PERSISTENCE ====================
+
+function saveBookings() {
+  try { localStorage.setItem('hogarya_bookings', JSON.stringify(state.bookings)); } catch (e) {}
+}
+function loadBookings() {
+  try {
+    const raw = localStorage.getItem('hogarya_bookings');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+// ==================== PROFILE ====================
+
+function renderProfile() {
+  if (!state.user) return;
+  document.getElementById('prof-name').value = state.user.name || '';
+  document.getElementById('prof-email').value = state.user.email || '';
+  document.getElementById('prof-phone').value = state.user.phone || '';
+  document.getElementById('prof-address').value = state.user.address || '';
+  document.getElementById('prof-userloc').value = state.user.userLocation || 'San José';
+}
+
+document.getElementById('form-profile').addEventListener('submit', (e) => {
+  e.preventDefault();
+  state.user.name = document.getElementById('prof-name').value.trim();
+  state.user.phone = document.getElementById('prof-phone').value.trim();
+  state.user.address = document.getElementById('prof-address').value.trim();
+  state.user.userLocation = document.getElementById('prof-userloc').value;
+  saveUser();
+  document.getElementById('user-initials').textContent = getInitials(state.user.name);
+  showToast('Cambios guardados', 'success');
+});
+
+// ==================== COMPARISON (HU-57 to HU-62) ====================
+
+state.comparison = []; // array of provider IDs
+const MAX_COMPARE = 4;
+
+function toggleCompare(providerId) {
+  const idx = state.comparison.indexOf(providerId);
+  if (idx >= 0) {
+    state.comparison.splice(idx, 1);
+    showToast('Quitado de la comparación');
+  } else {
+    if (state.comparison.length >= MAX_COMPARE) {
+      showToast(`Podés comparar hasta ${MAX_COMPARE} proveedores a la vez`);
+      return;
+    }
+    state.comparison.push(providerId);
+    showToast('Agregado a la comparación', 'success');
+  }
+  saveComparison();
+  updateCompareCounter();
+  // Re-render results if visible to update buttons
+  if (state.currentScreen === 'results') renderResults();
+  if (state.currentScreen === 'provider') updateCompareProfileBtn();
+}
+
+function toggleCompareFromProfile() {
+  if (!state.selectedProvider) return;
+  toggleCompare(state.selectedProvider.id);
+  updateCompareProfileBtn();
+}
+
+function updateCompareProfileBtn() {
+  const p = state.selectedProvider;
+  if (!p) return;
+  const btn = document.getElementById('btn-compare-profile');
+  const label = document.getElementById('compare-profile-label');
+  const inCompare = state.comparison.includes(p.id);
+  if (inCompare) {
+    btn.classList.add('btn-added');
+    label.textContent = 'En tu comparación ✓';
+    btn.style.borderColor = 'var(--green)';
+    btn.style.color = 'var(--green)';
+    btn.style.background = 'var(--green-soft)';
+  } else {
+    label.textContent = 'Agregar a comparación';
+    btn.style.borderColor = '';
+    btn.style.color = '';
+    btn.style.background = '';
+  }
+}
+
+function updateCompareCounter() {
+  const count = state.comparison.length;
+  const counter = document.getElementById('compare-counter');
+  const countEl = document.getElementById('compare-count');
+  if (count > 0) {
+    counter.style.display = 'flex';
+    countEl.textContent = count;
+  } else {
+    counter.style.display = 'none';
+  }
+}
+
+function renderCompare() {
+  const grid = document.getElementById('compare-grid');
+  const scroll = document.getElementById('compare-scroll');
+  const empty = document.getElementById('compare-empty');
+  const subtitle = document.getElementById('compare-subtitle');
+
+  if (state.comparison.length === 0) {
+    scroll.style.display = 'none';
+    empty.style.display = 'block';
+    subtitle.textContent = 'Compará lado a lado los proveedores que marcaste';
+    return;
+  }
+  scroll.style.display = 'block';
+  empty.style.display = 'none';
+  subtitle.textContent = `${state.comparison.length} ${state.comparison.length === 1 ? 'proveedor' : 'proveedores'} en comparación`;
+
+  const provs = state.comparison.map(id => PROVIDERS.find(p => p.id === id)).filter(Boolean);
+  const allDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+  grid.innerHTML = provs.map(p => {
+    const minPrice = Math.min(...p.services.map(s => s.price));
+    const starsHtml = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+    return `
+      <div class="compare-col">
+        <div class="compare-col-head">
+          <button class="compare-remove" onclick="removeFromCompare(${p.id})" aria-label="Quitar">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          </button>
+          <div class="avatar" style="background: ${p.color};">${p.initials}</div>
+          <div class="compare-col-name">${p.name}</div>
+        </div>
+        <div class="compare-row">
+          <div class="rlabel">Calificación</div>
+          <div class="rrating">${starsHtml} ${p.rating} <span style="color: var(--text-mute); font-weight: 400;">(${p.reviews})</span></div>
+        </div>
+        <div class="compare-row">
+          <div class="rlabel">Categoría</div>
+          <div class="rvalue">${p.categoryName}</div>
+        </div>
+        <div class="compare-row">
+          <div class="rlabel">Ubicación</div>
+          <div class="rvalue">${p.location} · ${p.distanceKm} km</div>
+        </div>
+        <div class="compare-row">
+          <div class="rlabel">Servicios</div>
+          ${p.services.map(s => `<div class="compare-svc-item"><span>${s.name}</span><span class="cs-price">${fmtPrice(s.price)}</span></div>`).join('')}
+        </div>
+        <div class="compare-row">
+          <div class="rlabel">Disponibilidad</div>
+          <div class="compare-avail-mini">
+            ${allDays.filter(d => p.availability.includes(d)).map(d => `<span>${d}</span>`).join('')}
+          </div>
+        </div>
+        <div class="compare-col-foot">
+          <button class="compare-select-btn" onclick="selectFromCompare(${p.id})">Seleccionar</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function removeFromCompare(providerId) {
+  const idx = state.comparison.indexOf(providerId);
+  if (idx >= 0) state.comparison.splice(idx, 1);
+  saveComparison();
+  updateCompareCounter();
+  renderCompare();
+  if (state.comparison.length === 0) {
+    showToast('Comparación vacía');
+  }
+}
+
+function selectFromCompare(providerId) {
+  const p = PROVIDERS.find(x => x.id === providerId);
+  if (!p) return;
+  state.selectedProvider = p;
+  state.selectedService = null;
+  renderProvider();
+  navigate('provider');
+}
+
+function saveComparison() {
+  try { localStorage.setItem('hogarya_compare', JSON.stringify(state.comparison)); } catch (e) {}
+}
+function loadComparison() {
+  try {
+    const raw = localStorage.getItem('hogarya_compare');
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) { return []; }
+}
+
+// ==================== FINALIZATION CONFIRMATION (HU-49, HU-50) ====================
+
+function renderFinalizationPrompt(b) {
+  // Inserts a confirmation card into booking detail when status is FINALIZACION
+  const existing = document.getElementById('finalization-prompt');
+  if (existing) existing.remove();
+
+  if (b.status !== 'FINALIZACION') return;
+
+  const card = document.createElement('div');
+  card.className = 'confirm-finish';
+  card.id = 'finalization-prompt';
+  card.innerHTML = `
+    <h3>¿El servicio se completó bien?</h3>
+    <p>El proveedor reportó que finalizó el trabajo. Confirmá si quedaste conforme o reportá un problema.</p>
+    <div class="cf-actions">
+      <button class="btn btn-outline" style="flex: 1;" onclick="goToIncidencia()">No, tuve un problema</button>
+      <button class="btn btn-primary" style="flex: 1;" onclick="goToRating()">Sí, confirmar</button>
+    </div>
+  `;
+  // Insert before the timeline block
+  const timelineBlock = document.getElementById('bk-timeline').closest('.detail-block');
+  timelineBlock.parentNode.insertBefore(card, timelineBlock);
+}
+
+function goToRating() {
+  const b = state.currentBooking;
+  if (!b) return;
+  // Mark as confirmed-finished
+  b.confirmedFinish = true;
+  initRatingScreen();
+  navigate('rating');
+}
+
+function goToIncidencia() {
+  state.evidenceList = [];
+  document.getElementById('incidencia-text').value = '';
+  document.getElementById('evidence-chips').innerHTML = '';
+  document.getElementById('btn-submit-incidencia').disabled = true;
+  navigate('incidencia');
+}
+
+// ==================== RATING (HU-53, HU-54) ====================
+
+state.currentRating = 0;
+const RATING_LABELS = ['', 'Muy malo', 'Malo', 'Regular', 'Bueno', 'Excelente'];
+
+function initRatingScreen() {
+  const b = state.currentBooking;
+  state.currentRating = 0;
+  document.getElementById('rating-prov-text').textContent = `¿Cómo fue tu experiencia con ${b.providerName}?`;
+  document.getElementById('rating-comment').value = '';
+  document.getElementById('rating-label').textContent = '';
+  document.getElementById('btn-submit-rating').disabled = true;
+  document.querySelectorAll('#star-picker button').forEach(btn => btn.classList.remove('lit'));
+}
+
+function setRating(n) {
+  state.currentRating = n;
+  document.querySelectorAll('#star-picker button').forEach(btn => {
+    const star = parseInt(btn.dataset.star);
+    btn.classList.toggle('lit', star <= n);
+  });
+  document.getElementById('rating-label').textContent = RATING_LABELS[n];
+  document.getElementById('btn-submit-rating').disabled = false;
+}
+
+function submitRating() {
+  const b = state.currentBooking;
+  if (!b || state.currentRating === 0) return;
+  b.status = 'COMPLETADO';
+  b.rating = state.currentRating;
+  b.comment = document.getElementById('rating-comment').value.trim();
+  b.statusHistory.push({ status: 'COMPLETADO', at: new Date().toISOString() });
+  saveBookings();
+  updateAgendaBadge();
+  showToast('¡Gracias por tu calificación!', 'success');
+  navigate('historial');
+}
+
+// ==================== INCIDENCIA (HU-51, HU-52) ====================
+
+state.evidenceList = [];
+const EVIDENCE_NAMES = ['foto_servicio_1.jpg', 'foto_servicio_2.jpg', 'nota_problema.txt', 'foto_antes.jpg', 'foto_despues.jpg'];
+
+function addEvidence() {
+  if (state.evidenceList.length >= 5) {
+    showToast('Máximo 5 archivos de evidencia');
+    return;
+  }
+  const name = EVIDENCE_NAMES[state.evidenceList.length] || `evidencia_${state.evidenceList.length + 1}.jpg`;
+  state.evidenceList.push(name);
+  renderEvidenceChips();
+}
+
+function removeEvidence(idx) {
+  state.evidenceList.splice(idx, 1);
+  renderEvidenceChips();
+}
+
+function renderEvidenceChips() {
+  const chips = document.getElementById('evidence-chips');
+  chips.innerHTML = state.evidenceList.map((name, i) => `
+    <div class="evidence-chip">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+      ${name}
+      <button onclick="removeEvidence(${i})" aria-label="Quitar"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg></button>
+    </div>
+  `).join('');
+  updateIncidenciaBtn();
+}
+
+document.getElementById('incidencia-text').addEventListener('input', updateIncidenciaBtn);
+
+function updateIncidenciaBtn() {
+  const txt = document.getElementById('incidencia-text').value.trim();
+  document.getElementById('btn-submit-incidencia').disabled = txt.length < 10;
+}
+
+function submitIncidencia() {
+  const b = state.currentBooking;
+  if (!b) return;
+  const txt = document.getElementById('incidencia-text').value.trim();
+  if (txt.length < 10) return;
+  b.status = 'EN_DISPUTA';
+  b.incidencia = {
+    motivo: txt,
+    evidencia: [...state.evidenceList],
+    estado: 'ABIERTA',
+    at: new Date().toISOString()
+  };
+  b.statusHistory.push({ status: 'EN_DISPUTA', at: new Date().toISOString() });
+  saveBookings();
+  updateAgendaBadge();
+  showToast('Disputa abierta. Te notificaremos sobre su avance.', 'success');
+  // Simulate dispute progress notification (HU-52)
+  setTimeout(() => {
+    showToast('📋 Tu disputa está siendo revisada por el equipo');
+  }, 4000);
+  navigate('historial');
+}
+
+// ==================== HISTORIAL (HU-55, HU-56) ====================
+
+state.histFilter = 'todos';
+
+function setHistFilter(filter) {
+  state.histFilter = filter;
+  document.querySelectorAll('.hist-filter').forEach(b => {
+    b.classList.toggle('active', b.dataset.filter === filter);
+  });
+  renderHistorial();
+}
+
+function renderHistorial() {
+  const list = document.getElementById('historial-list');
+  const empty = document.getElementById('historial-empty');
+
+  let items = [...state.bookings].reverse();
+  const f = state.histFilter;
+  if (f === 'activos') {
+    items = items.filter(b => ['EN_REVISION', 'CONFIRMADO', 'EN_CAMINO', 'EN_SITIO', 'INICIADO', 'FINALIZACION'].includes(b.status));
+  } else if (f !== 'todos') {
+    items = items.filter(b => b.status === f);
+  }
+
+  if (items.length === 0) {
+    list.style.display = 'none';
+    empty.style.display = 'block';
+    return;
+  }
+  list.style.display = 'block';
+  empty.style.display = 'none';
+
+  list.innerHTML = items.map(b => {
+    const starsHtml = b.rating
+      ? '<span class="hist-rating-display">' + Array(5).fill(0).map((_, i) =>
+          `<svg viewBox="0 0 24 24" fill="${i < b.rating ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`
+        ).join('') + '</span>'
+      : '';
+    const incidenciaTag = b.incidencia
+      ? '<span class="incidencia-tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 9v4M12 17h.01M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>Incidencia reportada</span>'
+      : '';
+    return `
+      <button class="booking-card" onclick="openBooking('${b.id}')">
+        <div class="booking-head">
+          <div class="booking-info">
+            <div class="avatar" style="background: ${b.providerColor};">${b.providerInitials}</div>
+            <div class="booking-info-text">
+              <div class="booking-prov-name">${b.providerName}</div>
+              <div class="booking-service">${b.serviceName} · ${fmtPrice(b.servicePrice)}</div>
+            </div>
+          </div>
+          <span class="status-badge st-${b.status.toLowerCase().replace('_', '')}">${labelForStatus(b.status)}</span>
+        </div>
+        <div class="booking-when">
+          <svg class="ico" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          ${formatDate(new Date(b.date))} · ${b.time}
+          ${b.rating ? '<span style="margin-left: auto;">' + starsHtml + '</span>' : ''}
+        </div>
+        ${incidenciaTag ? '<div style="margin-top: 10px;">' + incidenciaTag + '</div>' : ''}
+      </button>
+    `;
+  }).join('');
+}
+
+// ==================== INIT ====================
+
+function init() {
+  renderCategories();
+  state.bookings = loadBookings();
+  state.comparison = loadComparison();
+  updateAgendaBadge();
+  updateCompareCounter();
+  const saved = loadUser();
+  if (saved) {
+    state.user = saved;
+    if (!state.user.userLocation) state.user.userLocation = 'San José';
+    showAppShell();
+  } else {
+    showAuth();
+  }
+}
+
+init();
+</script>
+
+</body>
+</html>
